@@ -32,6 +32,8 @@ internal class Building_DrillTurret : Building
     public static Material targetLineTexture =
         MaterialPool.MatFrom(GenDraw.LineTexPath, ShaderDatabase.Transparent, new Color(1f, 1f, 1f));
 
+    public bool designatedOnly;
+
     public int drillDamageAmount;
 
     public int drillEfficiencyInPercent;
@@ -97,6 +99,7 @@ internal class Building_DrillTurret : Building
         Scribe_Values.Look(ref targetPosition, "targetPosition");
         Scribe_Values.Look(ref miningMode, "MiningMode");
         Scribe_Values.Look(ref turretTopRotation, "turretTopRotation");
+        Scribe_Values.Look(ref designatedOnly, "designatedOnly");
     }
 
     public void SetOperatorEfficiency(float efficiency)
@@ -197,22 +200,23 @@ internal class Building_DrillTurret : Building
             return false;
         }
 
-        if (miningMode is MiningMode.Ores or MiningMode.OresAndRocks)
-        {
-            var edifice = position.GetEdifice(Map);
-            if (edifice != null && edifice.def.building.isResourceRock && edifice.def.mineable)
-            {
-                return true;
-            }
-        }
-
-        if (miningMode != MiningMode.Rocks && miningMode != MiningMode.OresAndRocks)
+        if (designatedOnly && Map.designationManager.DesignationAt(position, DesignationDefOf.Mine) == null)
         {
             return false;
         }
 
-        var designation = Map.designationManager.DesignationAt(position, DesignationDefOf.Mine);
-        return designation != null;
+        var edifice = position.GetEdifice(Map);
+        if (edifice == null || !edifice.def.mineable)
+        {
+            return false;
+        }
+
+        if (edifice.def.building.isResourceRock)
+        {
+            return miningMode is (MiningMode.Ores or MiningMode.OresAndRocks);
+        }
+
+        return miningMode is (MiningMode.Rocks or MiningMode.OresAndRocks);
     }
 
     public bool IsValidTargetAtForGizmo(IntVec3 position)
@@ -300,7 +304,7 @@ internal class Building_DrillTurret : Building
     {
         var stringBuilder = new StringBuilder(base.GetInspectString());
         stringBuilder.AppendLine();
-        stringBuilder.Append("Drill efficiency: " + drillEfficiencyInPercent + "%");
+        stringBuilder.Append($"Drill efficiency: {drillEfficiencyInPercent}%");
         return stringBuilder.ToString();
     }
 
@@ -338,6 +342,19 @@ internal class Building_DrillTurret : Building
             activateSound = SoundDef.Named("Click"),
             action = SelectTarget,
             groupKey = num + 6
+        });
+        list.Add(new Command_Toggle
+        {
+            icon = ContentFinder<Texture2D>.Get("UI/Designators/Mine"),
+            defaultLabel = "MCDT.DesignatedOnly".Translate(),
+            defaultDesc = "MCDT.DesignatedOnlyTT".Translate(),
+            activateSound = SoundDef.Named("Click"),
+            isActive = () => designatedOnly,
+            toggleAction = () =>
+            {
+                designatedOnly = !designatedOnly;
+                LookForNewTarget(out targetPosition);
+            }
         });
         var gizmos = base.GetGizmos();
         var result = gizmos != null ? gizmos.Concat(list) : list;

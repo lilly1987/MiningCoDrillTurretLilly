@@ -1,5 +1,9 @@
 # Changelog for MiningCoDrillTurret
 
+1.5.1 - Added designated only setting
+Used DeepL to update translations for ChineseSimplified, French, German
+
+
 1.5.0 - First publish
 Used DeepL to update translations for ChineseSimplified, French, German
 

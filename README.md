@@ -1,4 +1,4 @@
-# [MiningCo. DrillTurret (Continued)]()
+# [MiningCo. DrillTurret (Continued)](https://steamcommunity.com/sharedfiles/filedetails/?id=3258344832)
 
 ![Image](https://i.imgur.com/buuPQel.png)
 Update of Rikikis mod https://steamcommunity.com/sharedfiles/filedetails/?id=974398773
@@ -51,3 +51,5 @@ So this is basically licensed under http://creativecommons.org/licenses/by/4.0
 -  Use [https://github.com/RimSort/RimSort/releases/latest](RimSort) to sort your mods
 
 
+
+[https://steamcommunity.com/sharedfiles/filedetails/changelog/3258344832]![Image]((https://img.shields.io/github/v/release/emipa606/MiningCoDrillTurret?label=latest%20version&style=plastic&color=9f1111&labelColor=black))

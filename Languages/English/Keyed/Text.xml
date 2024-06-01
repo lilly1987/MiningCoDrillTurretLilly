@@ -1,11 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
+  <MCDT.DesignatedOnly>Only designated</MCDT.DesignatedOnly>
+  <MCDT.DesignatedOnlyTT>Only mine tiles that are designated for mining</MCDT.DesignatedOnlyTT>
   <MCDT.SetTarget>Set target</MCDT.SetTarget>
   <MCDT.SetTargetTT>Order the turret to mine a specific rock. Can only target rocks in range with line of sight.</MCDT.SetTargetTT>
   <MCDT.OresRocks>Ores and rocks</MCDT.OresRocks>
-  <MCDT.OresRocksTT>In this mode, the mining turret automatically drill nearby ores and designated rocks. Click to switch mode.</MCDT.OresRocksTT>
+  <MCDT.OresRocksTT>In this mode, the mining turret automatically drill nearby ores and rocks. Click to switch mode.</MCDT.OresRocksTT>
   <MCDT.RocksOnly>Rocks only</MCDT.RocksOnly>
-  <MCDT.RocksOnlyTT>In this mode, the mining turret only drill nearby designated rocks. Click to switch mode.</MCDT.RocksOnlyTT>
+  <MCDT.RocksOnlyTT>In this mode, the mining turret only drill nearby rocks. Click to switch mode.</MCDT.RocksOnlyTT>
   <MCDT.OresOnly>Ores only</MCDT.OresOnly>
   <MCDT.OresOnlyTT>In this mode, the mining turret only drill nearby ores. Click to switch mode.</MCDT.OresOnlyTT>
   <MCDT.IdleDrill>Idle drill turret</MCDT.IdleDrill>
