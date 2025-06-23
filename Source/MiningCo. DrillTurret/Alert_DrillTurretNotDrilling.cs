@@ -17,14 +17,14 @@ public class Alert_DrillTurretNotDrilling : Alert
         var maps = Find.Maps;
         foreach (var map in maps)
         {
-            foreach (var building in map.listerBuildings.AllBuildingsColonistOfDef(Util_DrillTurret.drillTurretDef))
+            foreach (var building in map.listerBuildings.AllBuildingsColonistOfDef(Util_DrillTurret.DrillTurretDef))
             {
                 if (building is not Building_DrillTurret buildingDrillTurret)
                 {
                     continue;
                 }
 
-                if (!buildingDrillTurret.targetPosition.IsValid)
+                if (!buildingDrillTurret.TargetPosition.IsValid)
                 {
                     return AlertReport.CulpritIs(buildingDrillTurret);
                 }

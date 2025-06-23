@@ -7,18 +7,18 @@ namespace DrillTurret;
 
 public class WorkGiver_OperateDrillTurret : WorkGiver_Scanner
 {
-    public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForDef(Util_DrillTurret.drillTurretDef);
+    public override ThingRequest PotentialWorkThingRequest => ThingRequest.ForDef(Util_DrillTurret.DrillTurretDef);
 
     public override PathEndMode PathEndMode => PathEndMode.InteractionCell;
 
     public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
     {
-        return pawn.Map.listerBuildings.AllBuildingsColonistOfDef(Util_DrillTurret.drillTurretDef);
+        return pawn.Map.listerBuildings.AllBuildingsColonistOfDef(Util_DrillTurret.DrillTurretDef);
     }
 
     public override bool ShouldSkip(Pawn pawn, bool forced = false)
     {
-        return pawn.Map.listerBuildings.AllBuildingsColonistOfDef(Util_DrillTurret.drillTurretDef).Count == 0;
+        return pawn.Map.listerBuildings.AllBuildingsColonistOfDef(Util_DrillTurret.DrillTurretDef).Count == 0;
     }
 
     public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
@@ -43,11 +43,11 @@ public class WorkGiver_OperateDrillTurret : WorkGiver_Scanner
             return false;
         }
 
-        return !building.IsBurning() && ((Building_DrillTurret)building).targetPosition.IsValid;
+        return !building.IsBurning() && ((Building_DrillTurret)building).TargetPosition.IsValid;
     }
 
     public override Job JobOnThing(Pawn pawn, Thing t, bool forced = false)
     {
-        return JobMaker.MakeJob(Util_DrillTurret.operateDrillTurretJobDef, t, 1500, true);
+        return JobMaker.MakeJob(Util_DrillTurret.OperateDrillTurretJobDef, t, 1500, true);
     }
 }

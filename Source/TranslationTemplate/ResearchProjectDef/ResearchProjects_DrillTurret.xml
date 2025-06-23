@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+  <!-- EN: drill turret -->
+  <ResearchDrillTurret.label>drill turret</ResearchDrillTurret.label>
+  <!-- EN: Design drill turrets. Those turrets can be deployed near ore deposits or natural rocks to automatically drill it. A small part of resources are lost though (25%). -->
+  <ResearchDrillTurret.description>Design drill turrets. Those turrets can be deployed near ore deposits or natural rocks to automatically drill it. A small part of resources are lost though (25%).</ResearchDrillTurret.description>
+  <!-- EN: efficient drilling -->
+  <ResearchDrillTurretEfficientDrilling.label>efficient drilling</ResearchDrillTurretEfficientDrilling.label>
+  <!-- EN: Increase drill turret efficiency (+25 %) and avoid ore resources waste. -->
+  <ResearchDrillTurretEfficientDrilling.description>Increase drill turret efficiency (+25 %) and avoid ore resources waste.</ResearchDrillTurretEfficientDrilling.description>
+</LanguageData>

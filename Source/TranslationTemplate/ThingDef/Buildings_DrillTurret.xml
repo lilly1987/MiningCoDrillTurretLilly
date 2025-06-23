@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+  <!-- EN: drill turret -->
+  <DrillTurret.label>drill turret</DrillTurret.label>
+  <!-- EN: An advanced automated turret. Can slowly drill nearby ores and designated rocks in automated mode. Drilling efficiency can be greatly improved by operating it. -->
+  <DrillTurret.description>An advanced automated turret. Can slowly drill nearby ores and designated rocks in automated mode. Drilling efficiency can be greatly improved by operating it.</DrillTurret.description>
+</LanguageData>

@@ -4,10 +4,10 @@ namespace DrillTurret;
 
 public static class Util_DrillTurret
 {
-    public static ThingDef drillTurretDef => ThingDef.Named("DrillTurret");
+    public static ThingDef DrillTurretDef => ThingDef.Named("DrillTurret");
 
-    public static JobDef operateDrillTurretJobDef => DefDatabase<JobDef>.GetNamed("OperateDrillTurret");
+    public static JobDef OperateDrillTurretJobDef => DefDatabase<JobDef>.GetNamed("OperateDrillTurret");
 
-    public static ResearchProjectDef researchDrillTurretEfficientDrillingDef =>
+    public static ResearchProjectDef ResearchDrillTurretEfficientDrillingDef =>
         ResearchProjectDef.Named("ResearchDrillTurretEfficientDrilling");
 }

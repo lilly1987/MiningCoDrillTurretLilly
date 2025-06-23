@@ -7,7 +7,7 @@ namespace DrillTurret;
 
 public class JobDriver_OperateDrillTurret : JobDriver
 {
-    public readonly TargetIndex drillTurretIndex = TargetIndex.A;
+    private const TargetIndex DrillTurretIndex = TargetIndex.A;
 
     public override bool TryMakePreToilReservations(bool errorOnFail)
     {
@@ -18,8 +18,8 @@ public class JobDriver_OperateDrillTurret : JobDriver
     {
         this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
         this.FailOnBurningImmobile(TargetIndex.A);
-        this.FailOn(() => ((Building_DrillTurret)TargetThingA).targetPosition == IntVec3.Invalid);
-        yield return Toils_Goto.GotoCell(drillTurretIndex, PathEndMode.InteractionCell);
+        this.FailOn(() => ((Building_DrillTurret)TargetThingA).TargetPosition == IntVec3.Invalid);
+        yield return Toils_Goto.GotoCell(DrillTurretIndex, PathEndMode.InteractionCell);
         var operateDrillTurretToil = new Toil
         {
             tickAction = delegate
@@ -32,6 +32,6 @@ public class JobDriver_OperateDrillTurret : JobDriver
             defaultCompleteMode = ToilCompleteMode.Never
         };
         yield return operateDrillTurretToil;
-        yield return Toils_Reserve.Release(drillTurretIndex);
+        yield return Toils_Reserve.Release(DrillTurretIndex);
     }
 }

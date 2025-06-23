@@ -11,60 +11,53 @@ namespace DrillTurret;
 [StaticConstructorOnStartup]
 internal class Building_DrillTurret : Building
 {
-    public enum MiningMode
-    {
-        Ores,
-        Rocks,
-        OresAndRocks
-    }
+    private const int UpdatePeriodInTicks = 30;
 
-    public const int updatePeriodInTicks = 30;
+    public const int DrillPeriodInTicks = 30;
 
-    public const int drillPeriodInTicks = 30;
+    private static readonly Material turretTopOnTexture = MaterialPool.MatFrom("Things/Building/DrillTurret_On");
 
-    public static readonly Material turretTopOnTexture = MaterialPool.MatFrom("Things/Building/DrillTurret_On");
+    public static Material TurretTopOffTexture = MaterialPool.MatFrom("Things/Building/DrillTurret_Off");
 
-    public static Material turretTopOffTexture = MaterialPool.MatFrom("Things/Building/DrillTurret_Off");
-
-    public static readonly Material laserBeamTexture =
+    private static readonly Material laserBeamTexture =
         MaterialPool.MatFrom("Effects/DrillTurret_LaserBeam", ShaderDatabase.Transparent);
 
-    public static Material targetLineTexture =
+    public static Material TargetLineTexture =
         MaterialPool.MatFrom(GenDraw.LineTexPath, ShaderDatabase.Transparent, new Color(1f, 1f, 1f));
 
-    public bool designatedOnly;
+    private readonly Vector3 turretTopScale = new(4f, 1f, 4f);
 
-    public int drillDamageAmount;
+    private bool designatedOnly;
 
-    public int drillEfficiencyInPercent;
+    private int drillDamageAmount;
 
-    public bool isManned;
+    private int drillEfficiencyInPercent;
 
-    public Matrix4x4 laserBeamMatrix;
+    private bool isManned;
 
-    public Vector3 laserBeamScale = new Vector3(1f, 1f, 1f);
+    private Matrix4x4 laserBeamMatrix;
 
-    public Effecter laserDrillEffecter;
+    private Vector3 laserBeamScale = new(1f, 1f, 1f);
 
-    public Sustainer laserDrillSoundSustainer = null;
+    private Effecter laserDrillEffecter;
 
-    public MiningMode miningMode = MiningMode.OresAndRocks;
+    public Sustainer LaserDrillSoundSustainer = null;
 
-    public int nextDrillTick = 0;
+    private MiningMode miningMode = MiningMode.OresAndRocks;
 
-    public int nextUpdateTick;
+    public int NextDrillTick = 0;
 
-    public float operatorEfficiency;
+    private int nextUpdateTick;
 
-    public CompPowerTrader powerComp;
+    private float operatorEfficiency;
 
-    public IntVec3 targetPosition = IntVec3.Invalid;
+    private CompPowerTrader powerComp;
 
-    public Matrix4x4 turretTopMatrix;
+    public IntVec3 TargetPosition = IntVec3.Invalid;
 
-    public float turretTopRotation;
+    private Matrix4x4 turretTopMatrix;
 
-    public Vector3 turretTopScale = new Vector3(4f, 1f, 4f);
+    private float turretTopRotation;
 
     public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
@@ -83,20 +76,20 @@ internal class Building_DrillTurret : Building
     public override void DeSpawn(DestroyMode mode = DestroyMode.Vanish)
     {
         base.DeSpawn(mode);
-        ResetTarget();
+        resetTarget();
     }
 
-    public void ResetTarget()
+    private void resetTarget()
     {
-        targetPosition = IntVec3.Invalid;
-        StopLaserDrillEffecter();
+        TargetPosition = IntVec3.Invalid;
+        stopLaserDrillEffecter();
         drillEfficiencyInPercent = 0;
     }
 
     public override void ExposeData()
     {
         base.ExposeData();
-        Scribe_Values.Look(ref targetPosition, "targetPosition");
+        Scribe_Values.Look(ref TargetPosition, "targetPosition");
         Scribe_Values.Look(ref miningMode, "MiningMode");
         Scribe_Values.Look(ref turretTopRotation, "turretTopRotation");
         Scribe_Values.Look(ref designatedOnly, "designatedOnly");
@@ -108,7 +101,7 @@ internal class Building_DrillTurret : Building
         operatorEfficiency = efficiency;
     }
 
-    public float ComputeDrillEfficiency()
+    private float computeDrillEfficiency()
     {
         var num = 0.25f;
         if (isManned)
@@ -117,7 +110,7 @@ internal class Building_DrillTurret : Building
             num += 0.5f * operatorEfficiency;
         }
 
-        var isFinished = Util_DrillTurret.researchDrillTurretEfficientDrillingDef.IsFinished;
+        var isFinished = Util_DrillTurret.ResearchDrillTurretEfficientDrillingDef.IsFinished;
         if (isFinished)
         {
             num += 0.25f;
@@ -126,7 +119,7 @@ internal class Building_DrillTurret : Building
         return Mathf.Clamp01(num);
     }
 
-    public override void Tick()
+    protected override void Tick()
     {
         base.Tick();
         if (!powerComp.PowerOn)
@@ -136,49 +129,49 @@ internal class Building_DrillTurret : Building
 
         if (Find.TickManager.TicksGame >= nextUpdateTick)
         {
-            nextUpdateTick = Find.TickManager.TicksGame + updatePeriodInTicks;
-            if (targetPosition.IsValid)
+            nextUpdateTick = Find.TickManager.TicksGame + UpdatePeriodInTicks;
+            if (TargetPosition.IsValid)
             {
-                if (!IsValidTargetAt(targetPosition))
+                if (!isValidTargetAt(TargetPosition))
                 {
-                    ResetTarget();
+                    resetTarget();
                 }
             }
 
-            if (!targetPosition.IsValid)
+            if (!TargetPosition.IsValid)
             {
-                LookForNewTarget(out targetPosition);
+                lookForNewTarget(out TargetPosition);
             }
 
-            var num = ComputeDrillEfficiency();
+            var num = computeDrillEfficiency();
             drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
             drillDamageAmount = Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num));
-            if (targetPosition.IsValid)
+            if (TargetPosition.IsValid)
             {
-                DrillRock();
+                drillRock();
             }
         }
 
-        var isValid3 = targetPosition.IsValid;
+        var isValid3 = TargetPosition.IsValid;
         if (isValid3)
         {
-            StartOrMaintainLaserDrillEffecter();
+            startOrMaintainLaserDrillEffecter();
         }
 
-        ComputeDrawingParameters();
+        computeDrawingParameters();
     }
 
-    public void OnPoweredOff()
+    private void OnPoweredOff()
     {
-        ResetTarget();
+        resetTarget();
     }
 
-    public void LookForNewTarget(out IntVec3 newTargetPosition)
+    private void lookForNewTarget(out IntVec3 newTargetPosition)
     {
         newTargetPosition = IntVec3.Invalid;
         foreach (var intVec in GenRadial.RadialCellsAround(Position, def.specialDisplayRadius, false).InRandomOrder())
         {
-            if (!IsValidTargetAt(intVec))
+            if (!isValidTargetAt(intVec))
             {
                 continue;
             }
@@ -189,11 +182,11 @@ internal class Building_DrillTurret : Building
 
         if (newTargetPosition.IsValid)
         {
-            turretTopRotation = Mathf.Repeat((targetPosition.ToVector3Shifted() - this.TrueCenter()).AngleFlat(), 360f);
+            turretTopRotation = Mathf.Repeat((TargetPosition.ToVector3Shifted() - this.TrueCenter()).AngleFlat(), 360f);
         }
     }
 
-    public bool IsValidTargetAt(IntVec3 position)
+    private bool isValidTargetAt(IntVec3 position)
     {
         if (!GenSight.LineOfSight(Position, position, Map, false))
         {
@@ -213,13 +206,13 @@ internal class Building_DrillTurret : Building
 
         if (edifice.def.building.isResourceRock)
         {
-            return miningMode is (MiningMode.Ores or MiningMode.OresAndRocks);
+            return miningMode is MiningMode.Ores or MiningMode.OresAndRocks;
         }
 
-        return miningMode is (MiningMode.Rocks or MiningMode.OresAndRocks);
+        return miningMode is MiningMode.Rocks or MiningMode.OresAndRocks;
     }
 
-    public bool IsValidTargetAtForGizmo(IntVec3 position)
+    private bool isValidTargetAtForGizmo(IntVec3 position)
     {
         if (!GenSight.LineOfSight(Position, position, Map, false))
         {
@@ -235,9 +228,9 @@ internal class Building_DrillTurret : Building
         return edifice.def.building.isResourceRock || edifice.def.building.isNaturalRock;
     }
 
-    public void DrillRock()
+    private void drillRock()
     {
-        var edifice = targetPosition.GetEdifice(Map);
+        var edifice = TargetPosition.GetEdifice(Map);
         if (edifice == null)
         {
             return;
@@ -252,7 +245,7 @@ internal class Building_DrillTurret : Building
             if (edifice.def.building.isResourceRock && edifice.def.building.mineableThing != null)
             {
                 var num = edifice.def.building.mineableYield;
-                if (!Util_DrillTurret.researchDrillTurretEfficientDrillingDef.IsFinished)
+                if (!Util_DrillTurret.ResearchDrillTurretEfficientDrillingDef.IsFinished)
                 {
                     num = Mathf.RoundToInt(num * 0.75f);
                 }
@@ -273,11 +266,11 @@ internal class Building_DrillTurret : Building
             return;
         }
 
-        ResetTarget();
-        LookForNewTarget(out targetPosition);
+        resetTarget();
+        lookForNewTarget(out TargetPosition);
     }
 
-    public void StopLaserDrillEffecter()
+    private void stopLaserDrillEffecter()
     {
         if (laserDrillEffecter == null)
         {
@@ -288,7 +281,7 @@ internal class Building_DrillTurret : Building
         laserDrillEffecter = null;
     }
 
-    public void StartOrMaintainLaserDrillEffecter()
+    private void startOrMaintainLaserDrillEffecter()
     {
         if (laserDrillEffecter == null)
         {
@@ -296,7 +289,7 @@ internal class Building_DrillTurret : Building
         }
         else
         {
-            laserDrillEffecter.EffectTick(new TargetInfo(targetPosition, Map), new TargetInfo(Position, Map));
+            laserDrillEffecter.EffectTick(new TargetInfo(TargetPosition, Map), new TargetInfo(Position, Map));
         }
     }
 
@@ -312,35 +305,35 @@ internal class Building_DrillTurret : Building
     {
         IList<Gizmo> list = new List<Gizmo>();
         var num = 700000103;
-        var command_Action = new Command_Action();
+        var commandAction = new Command_Action();
         switch (miningMode)
         {
             case MiningMode.Ores:
-                command_Action.defaultLabel = "MCDT.OresOnly".Translate();
-                command_Action.defaultDesc = "MCDT.OresOnlyTT".Translate();
+                commandAction.defaultLabel = "MCDT.OresOnly".Translate();
+                commandAction.defaultDesc = "MCDT.OresOnlyTT".Translate();
                 break;
             case MiningMode.Rocks:
-                command_Action.defaultLabel = "MCDT.RocksOnly".Translate();
-                command_Action.defaultDesc = "MCDT.RocksOnlyTT".Translate();
+                commandAction.defaultLabel = "MCDT.RocksOnly".Translate();
+                commandAction.defaultDesc = "MCDT.RocksOnlyTT".Translate();
                 break;
             case MiningMode.OresAndRocks:
-                command_Action.defaultLabel = "MCDT.OresRocks".Translate();
-                command_Action.defaultDesc = "MCDT.OresRocksTT".Translate();
+                commandAction.defaultLabel = "MCDT.OresRocks".Translate();
+                commandAction.defaultDesc = "MCDT.OresRocksTT".Translate();
                 break;
         }
 
-        command_Action.icon = ContentFinder<Texture2D>.Get("Ui/Commands/CommandButton_SwitchMode");
-        command_Action.activateSound = SoundDef.Named("Click");
-        command_Action.action = SwitchMiningMode;
-        command_Action.groupKey = num + 1;
-        list.Add(command_Action);
+        commandAction.icon = ContentFinder<Texture2D>.Get("Ui/Commands/CommandButton_SwitchMode");
+        commandAction.activateSound = SoundDef.Named("Click");
+        commandAction.action = switchMiningMode;
+        commandAction.groupKey = num + 1;
+        list.Add(commandAction);
         list.Add(new Command_Action
         {
             icon = ContentFinder<Texture2D>.Get("UI/Commands/Attack"),
             defaultLabel = "MCDT.SetTarget".Translate(),
             defaultDesc = "MCDT.SetTargetTT".Translate(),
             activateSound = SoundDef.Named("Click"),
-            action = SelectTarget,
+            action = selectTarget,
             groupKey = num + 6
         });
         list.Add(new Command_Toggle
@@ -353,7 +346,7 @@ internal class Building_DrillTurret : Building
             toggleAction = () =>
             {
                 designatedOnly = !designatedOnly;
-                LookForNewTarget(out targetPosition);
+                lookForNewTarget(out TargetPosition);
             }
         });
         var gizmos = base.GetGizmos();
@@ -362,7 +355,7 @@ internal class Building_DrillTurret : Building
         return result;
     }
 
-    public void SwitchMiningMode()
+    private void switchMiningMode()
     {
         switch (miningMode)
         {
@@ -377,10 +370,10 @@ internal class Building_DrillTurret : Building
                 break;
         }
 
-        ResetTarget();
+        resetTarget();
     }
 
-    public void SelectTarget()
+    private void selectTarget()
     {
         var targetingParameters = new TargetingParameters
         {
@@ -388,30 +381,30 @@ internal class Building_DrillTurret : Building
             canTargetBuildings = true,
             canTargetLocations = true,
             validator = targ =>
-                IsValidTargetAtForGizmo(targ.Cell) && targ.Cell.InHorDistOf(Position, def.specialDisplayRadius)
+                isValidTargetAtForGizmo(targ.Cell) && targ.Cell.InHorDistOf(Position, def.specialDisplayRadius)
         };
-        Find.Targeter.BeginTargeting(targetingParameters, SetForcedTarget, null, null);
+        Find.Targeter.BeginTargeting(targetingParameters, setForcedTarget, null, null);
     }
 
-    public void SetForcedTarget(LocalTargetInfo forcedTarget)
+    private void setForcedTarget(LocalTargetInfo forcedTarget)
     {
-        targetPosition = forcedTarget.Cell;
+        TargetPosition = forcedTarget.Cell;
         if (Map.designationManager.DesignationAt(forcedTarget.Cell, DesignationDefOf.Mine) == null)
         {
             Map.designationManager.AddDesignation(new Designation(forcedTarget, DesignationDefOf.Mine));
         }
 
-        turretTopRotation = Mathf.Repeat((targetPosition.ToVector3Shifted() - this.TrueCenter()).AngleFlat(), 360f);
-        ComputeDrawingParameters();
+        turretTopRotation = Mathf.Repeat((TargetPosition.ToVector3Shifted() - this.TrueCenter()).AngleFlat(), 360f);
+        computeDrawingParameters();
     }
 
-    public void ComputeDrawingParameters()
+    private void computeDrawingParameters()
     {
         laserBeamScale.x = 0.2f + (0.8f * drillEfficiencyInPercent / 100f);
-        var isValid = targetPosition.IsValid;
+        var isValid = TargetPosition.IsValid;
         if (isValid)
         {
-            var a = targetPosition.ToVector3Shifted() - this.TrueCenter();
+            var a = TargetPosition.ToVector3Shifted() - this.TrueCenter();
             a.y = 0f;
             laserBeamScale.z = a.magnitude - 0.8f;
             var b = a / 2f;
@@ -439,5 +432,12 @@ internal class Building_DrillTurret : Building
         {
             Graphics.DrawMesh(MeshPool.plane10, laserBeamMatrix, laserBeamTexture, 0);
         }
+    }
+
+    private enum MiningMode
+    {
+        Ores,
+        Rocks,
+        OresAndRocks
     }
 }
