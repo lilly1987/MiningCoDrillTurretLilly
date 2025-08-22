@@ -426,11 +426,15 @@ internal class Building_DrillTurret : Building
         turretTopMatrix.SetTRS(
             Position.ToVector3ShiftedWithAltitude(AltitudeLayer.Projectile.AltitudeFor()) + Altitudes.AltIncVect,
             turretTopRotation.ToQuat(), turretTopScale);
-        Graphics.DrawMesh(MeshPool.plane10, turretTopMatrix, turretTopOnTexture, 0);
         var powerOn = powerComp.PowerOn;
         if (powerOn)
         {
+            Graphics.DrawMesh(MeshPool.plane10, turretTopMatrix, turretTopOnTexture, 0);
             Graphics.DrawMesh(MeshPool.plane10, laserBeamMatrix, laserBeamTexture, 0);
+        }
+        else
+        {
+            Graphics.DrawMesh(MeshPool.plane10, turretTopMatrix, TurretTopOffTexture, 0);
         }
     }
 

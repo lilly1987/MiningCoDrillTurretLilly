@@ -3,7 +3,13 @@
   "CanAdd": "0",
   "CanRemove": "2",
   "PreviewVersion": "1.6",
-  "LastXmlCleaning": "2025-06-23T22:23:44.9702563+02:00",
+  "LastXmlCleaning": "2025-08-22T21:42:14.8615533+02:00",
   "SocialImageSet": true,
-  "SearchTags": " mining efficiency"
+  "SearchTags": " mining efficiency",
+  "Patches": false,
+  "Defs": true,
+  "Assemblies": true,
+  "LinesOfCode": 19786,
+  "LinesOfXML": 5705,
+  "CodeBaseSize": 69
 }
