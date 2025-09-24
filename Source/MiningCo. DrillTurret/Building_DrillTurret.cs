@@ -387,8 +387,8 @@ internal class Building_DrillTurret : Building
                 commandAction.defaultDesc = "MCDT.RocksOnlyTT".Translate();
                 break;
             case MiningMode.All:
-                commandAction.defaultLabel = "MCDT.OresRocks".Translate();
-                commandAction.defaultDesc = "MCDT.OresRocksTT".Translate();
+                commandAction.defaultLabel = "MCDT.All".Translate();
+                commandAction.defaultDesc = "MCDT.AllTT".Translate();
                 break;
             case MiningMode.Deconstruct:
                 commandAction.defaultLabel = "MCDT.Deconstruct".Translate();
