@@ -14,16 +14,16 @@ using static UnityEngine.UI.Image;
 namespace Lilly
 {
     [StaticConstructorOnStartup]
-    public static class DrillCache
+    public static class BuildingCache
     {
         public static string harmonyId = "Lilly.DrillCache";
         public static Harmony harmony;
 
         public static bool DebugMode=false;
 
-        public static Dictionary<Map, List<Building>> cachedRocks = new Dictionary<Map, List<Building>>();
+        public static Dictionary<Map, List<Building>> cached = new Dictionary<Map, List<Building>>();
 
-        static DrillCache()
+        static BuildingCache()
         {
             try
             {
@@ -62,10 +62,10 @@ namespace Lilly
                 MyLog.Warning($"Map FinalizeInit {__instance} {__instance.Tile}",print: DebugMode);
                 var mineableBuildings = __instance.listerThings.AllThings
                     .OfType<Building>()
-                    .Where(b => b.def.mineable)
+                    //.Where(b => b.def.mineable)
                     .ToList();
 
-                DrillCache.cachedRocks[__instance] = mineableBuildings;
+                BuildingCache.cached[__instance] = mineableBuildings;
             }
         }
 
@@ -78,10 +78,10 @@ namespace Lilly
                 MyLog.Warning($"Map FinalizeLoading {__instance} {__instance.Tile}", print: DebugMode);
                 var mineables = __instance.listerThings.AllThings
                     .OfType<Building>()
-                    .Where(b => b.def.mineable)
+                    //.Where(b => b.def.mineable)
                     .ToList();
 
-                DrillCache.cachedRocks[__instance] = mineables;
+                BuildingCache.cached[__instance] = mineables;
             }
         }
 
@@ -106,13 +106,13 @@ namespace Lilly
 
                 var mineables = outThings
                     .OfType<Building>()
-                    .Where(b => b.def.mineable)
+                    //.Where(b => b.def.mineable)
                     .ToList();
 
                 if (mineables.Count == 0) return;
 
-                if (!DrillCache.cachedRocks.TryGetValue(map, out var list))
-                    DrillCache.cachedRocks[map] = list = new List<Building>();
+                if (!BuildingCache.cached.TryGetValue(map, out var list))
+                    BuildingCache.cached[map] = list = new List<Building>();
 
                 list.AddRange(mineables);
             }
@@ -128,8 +128,9 @@ namespace Lilly
                 if (map == null)
                     return;
 
-                if (__instance.def.mineable &&
-                    DrillCache.cachedRocks.TryGetValue(map, out var list))
+                if (
+                    //__instance.def.mineable &&
+                    BuildingCache.cached.TryGetValue(map, out var list))
                 {
                     MyLog.Warning($"SpawnSetup / {__instance} / {map} / {__instance.def.defName}", print: DebugMode);
                     list.Add(__instance);
@@ -149,7 +150,7 @@ namespace Lilly
                     return;
 
                 if (__instance.def.mineable &&
-                    DrillCache.cachedRocks.TryGetValue(__instance.Map, out var list))
+                    BuildingCache.cached.TryGetValue(__instance.Map, out var list))
                 {
                     list.Remove(__instance);
                 }
@@ -168,8 +169,9 @@ namespace Lilly
                     return;
 
                 Building building = __instance as Building;
-                if (building.def.mineable &&
-                    DrillCache.cachedRocks.TryGetValue(__instance.Map, out var list))
+                if (
+                    //building.def.mineable &&
+                    BuildingCache.cached.TryGetValue(__instance.Map, out var list))
                 {
                     list.Remove(building);
                 }
