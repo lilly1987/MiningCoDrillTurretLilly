@@ -194,7 +194,8 @@ internal class Building_DrillTurret : Building
         if ( miningMode is MiningMode.Deconstruct or MiningMode.All)
             list.AddRange(
                 this.Map.designationManager.designationsByDef[DesignationDefOf.Deconstruct]
-                    .Select(d => d.target.Cell)
+                .Where(d => d.target.HasThing)
+                .Select(d => d.target.Thing.Position)
         )
         ;
 
@@ -235,16 +236,16 @@ internal class Building_DrillTurret : Building
             return false;
         }
 
-        if (designatedOnly
-            && Map.designationManager.DesignationAt(position, DesignationDefOf.Mine) == null
-            && Map.designationManager.DesignationAt(position, DesignationDefOf.Deconstruct) == null
-            )
+        var edifice = position.GetEdifice(Map);
+        if (edifice == null)
         {
             return false;
         }
 
-        var edifice = position.GetEdifice(Map);
-        if (edifice == null)
+        if (designatedOnly
+            && Map.designationManager.DesignationAt(position, DesignationDefOf.Mine) == null
+            && Map.designationManager.DesignationOn(edifice, DesignationDefOf.Deconstruct) == null
+            )
         {
             return false;
         }
