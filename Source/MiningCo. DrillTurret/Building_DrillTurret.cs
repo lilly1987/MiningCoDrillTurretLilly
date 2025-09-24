@@ -196,44 +196,44 @@ public class Building_DrillTurret : Building
         if (!powerComp.PowerOn)
             return;
 
-        if (Find.TickManager.TicksGame >= nextUpdateTick)
+        if (Find.TickManager.TicksGame < nextUpdateTick)
+            return;
+        
+        nextUpdateTick = Find.TickManager.TicksGame + UpdatePeriodInTicks;
+
+        if (TargetPosition.IsValid && !isValidTargetAt(TargetPosition))
+            resetTarget();
+
+        if (!TargetPosition.IsValid)
+            lookForNewTarget(out TargetPosition);
+
+        if (!TargetPosition.IsValid || !isValidTargetAt(TargetPosition))
+            return;
+            
+        if (targetDesignationDef == DesignationDefOf.Mine)
         {
-            nextUpdateTick = Find.TickManager.TicksGame + UpdatePeriodInTicks;
-
-            if (!TargetPosition.IsValid)
-                lookForNewTarget(out TargetPosition);
-
-            if (TargetPosition.IsValid && isValidTargetAt(TargetPosition))
-            {
-                if (targetDesignationDef == DesignationDefOf.Mine)
-                {
-                    var num = computeDrillEfficiency();
-                    drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
-                    drillDamageAmount = (int)(Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num) * DrillTurretSettings.DamageMultiple));
-                    drillRock();
-                }
-                else if (targetDesignationDef == DesignationDefOf.Deconstruct)
-                {
-                    var edifice = TargetPosition.GetEdifice(Map);
-                    if (edifice != null)
-                    {
-                        edifice.Destroy(DestroyMode.Deconstruct);
-                        resetTarget();
-                        lookForNewTarget(out TargetPosition);
-                    }
-                    else
-                        resetTarget();
-                }
-                else
-                {
-                    resetTarget();
-                }
-                startOrMaintainLaserDrillEffecter();
-            }
-            else
-                resetTarget();
+            var num = computeDrillEfficiency();
+            drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
+            drillDamageAmount = (int)(Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num) * DrillTurretSettings.DamageMultiple));
+            drillRock();
         }
-
+        else if (targetDesignationDef == DesignationDefOf.Deconstruct)
+        {
+            var edifice = TargetPosition.GetEdifice(Map);
+            if (edifice != null)
+            {
+                edifice.Destroy(DestroyMode.Deconstruct);
+            }
+            resetTarget();
+            lookForNewTarget(out TargetPosition);                    
+        }
+        else
+        {
+            resetTarget();
+            lookForNewTarget(out TargetPosition);
+        }
+        startOrMaintainLaserDrillEffecter();            
+        
     }
 
     public void OnPoweredOff()
