@@ -1,12 +1,15 @@
+using Lilly;
+using RimWorld;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using RimWorld;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Verse;
+using Verse.Noise;
 using Verse.Sound;
 
-namespace DrillTurret;
+namespace DrillTurretLilly;
 
 [StaticConstructorOnStartup]
 internal class Building_DrillTurret : Building
@@ -15,12 +18,12 @@ internal class Building_DrillTurret : Building
 
     public const int DrillPeriodInTicks = 30;
 
-    private static readonly Material turretTopOnTexture = MaterialPool.MatFrom("Things/Building/DrillTurret_On");
+    private static readonly Material turretTopOnTexture = MaterialPool.MatFrom("Things/Building/DrillTurret_OnLilly");
 
-    public static Material TurretTopOffTexture = MaterialPool.MatFrom("Things/Building/DrillTurret_Off");
+    public static Material TurretTopOffTexture = MaterialPool.MatFrom("Things/Building/DrillTurret_OffLilly");
 
     private static readonly Material laserBeamTexture =
-        MaterialPool.MatFrom("Effects/DrillTurret_LaserBeam", ShaderDatabase.Transparent);
+        MaterialPool.MatFrom("Effects/DrillTurret_LaserBeamLilly", ShaderDatabase.Transparent);
 
     public static Material TargetLineTexture =
         MaterialPool.MatFrom(GenDraw.LineTexPath, ShaderDatabase.Transparent, new Color(1f, 1f, 1f));
@@ -145,7 +148,7 @@ internal class Building_DrillTurret : Building
 
             var num = computeDrillEfficiency();
             drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
-            drillDamageAmount = Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num));
+            drillDamageAmount = (int)(Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num) * DrillTurretSettings.DamageMultiple));
             if (TargetPosition.IsValid)
             {
                 drillRock();
@@ -169,15 +172,50 @@ internal class Building_DrillTurret : Building
     private void lookForNewTarget(out IntVec3 newTargetPosition)
     {
         newTargetPosition = IntVec3.Invalid;
-        foreach (var intVec in GenRadial.RadialCellsAround(Position, def.specialDisplayRadius, false).InRandomOrder())
-        {
-            if (!isValidTargetAt(intVec))
-            {
-                continue;
-            }
 
-            newTargetPosition = intVec;
-            break;
+        /*
+                foreach (var intVec in GenRadial.RadialCellsAround(Position, def.specialDisplayRadius, false).InRandomOrder())
+                {
+                    if (!isValidTargetAt(intVec))
+                    {
+                        continue;
+                    }
+
+                    newTargetPosition = intVec;
+                    break;
+                }
+        */
+
+        var designated = new List<IntVec3>();
+        var fallback = new List<IntVec3>();
+
+        //foreach (var cell in map.AllCells)
+        foreach (var cell in DrillCache.cachedRocks[this.Map]
+            .OrderBy(b => b.Position.DistanceToSquared(Position))
+            )
+        {
+            if (this.Map.designationManager.DesignationAt(cell.Position, DesignationDefOf.Mine) != null)
+                designated.Add(cell.Position);
+            else
+                fallback.Add(cell.Position);
+        }
+
+        foreach (var cell in designated)
+        {            
+            if (isValidTargetAt(cell))
+            {
+                newTargetPosition = cell;
+                break;
+            }
+        }
+
+        foreach (var cell in fallback)
+        {            
+            if (isValidTargetAt(cell))
+            {
+                newTargetPosition = cell;
+                break;
+            }
         }
 
         if (newTargetPosition.IsValid)
@@ -188,7 +226,7 @@ internal class Building_DrillTurret : Building
 
     private bool isValidTargetAt(IntVec3 position)
     {
-        if (!GenSight.LineOfSight(Position, position, Map, false))
+        if (DrillTurretSettings.onSight && !GenSight.LineOfSight(Position, position, Map, false))
         {
             return false;
         }
@@ -202,6 +240,11 @@ internal class Building_DrillTurret : Building
         if (edifice == null || !edifice.def.mineable)
         {
             return false;
+        }
+
+        if (edifice.Faction != null && edifice.Faction.HostileTo(Faction.OfPlayer))
+        {
+            return miningMode is MiningMode.Deconstruct;
         }
 
         if (edifice.def.building.isResourceRock)
@@ -285,7 +328,7 @@ internal class Building_DrillTurret : Building
     {
         if (laserDrillEffecter == null)
         {
-            laserDrillEffecter = new Effecter(DefDatabase<EffecterDef>.GetNamed("LaserDrill"));
+            laserDrillEffecter = new Effecter(DefDatabase<EffecterDef>.GetNamed("LaserDrillLilly"));
         }
         else
         {
@@ -319,6 +362,10 @@ internal class Building_DrillTurret : Building
             case MiningMode.OresAndRocks:
                 commandAction.defaultLabel = "MCDT.OresRocks".Translate();
                 commandAction.defaultDesc = "MCDT.OresRocksTT".Translate();
+                break;
+            case MiningMode.Deconstruct:
+                commandAction.defaultLabel = "MCDT.Deconstruct".Translate();
+                commandAction.defaultDesc = "MCDT.DeconstructTT".Translate();
                 break;
         }
 
@@ -366,6 +413,9 @@ internal class Building_DrillTurret : Building
                 miningMode = MiningMode.OresAndRocks;
                 break;
             case MiningMode.OresAndRocks:
+                miningMode = MiningMode.Deconstruct;
+                break;
+            case MiningMode.Deconstruct:
                 miningMode = MiningMode.Ores;
                 break;
         }
@@ -442,6 +492,7 @@ internal class Building_DrillTurret : Building
     {
         Ores,
         Rocks,
-        OresAndRocks
+        OresAndRocks,
+        Deconstruct
     }
 }

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>MiningCo. DrillTurret (Continued) Lilly</name>
-  <packageId>Mlie.MiningCoDrillTurretLilly</packageId>
+  <packageId>Mlie.MiningCoDrillTurret</packageId>
   <author>Rikiki</author>
   <url>https://github.com/lilly1987/MiningCoDrillTurretLilly</url>
   <supportedVersions>

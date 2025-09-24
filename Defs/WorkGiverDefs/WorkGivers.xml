@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <WorkGiverDef>
+    <defName>OperateDrillTurretLilly</defName>
+    <label>operate</label>
+    <giverClass>DrillTurretLilly.WorkGiver_OperateDrillTurret</giverClass>
+    <workType>Mining</workType>
+    <priorityInType>110</priorityInType>
+    <verb>operate</verb>
+    <gerund>operating</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+      <li>Sight</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+</Defs>

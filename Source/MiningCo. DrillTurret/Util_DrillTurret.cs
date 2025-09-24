@@ -1,13 +1,13 @@
 using Verse;
 
-namespace DrillTurret;
+namespace DrillTurretLilly;
 
 public static class Util_DrillTurret
 {
-    public static ThingDef DrillTurretDef => ThingDef.Named("DrillTurret");
+    public static ThingDef DrillTurretDef => ThingDef.Named("DrillTurretLilly");
 
-    public static JobDef OperateDrillTurretJobDef => DefDatabase<JobDef>.GetNamed("OperateDrillTurret");
+    public static JobDef OperateDrillTurretJobDef => DefDatabase<JobDef>.GetNamed("OperateDrillTurretLilly");
 
     public static ResearchProjectDef ResearchDrillTurretEfficientDrillingDef =>
-        ResearchProjectDef.Named("ResearchDrillTurretEfficientDrilling");
+        ResearchProjectDef.Named("ResearchDrillTurretEfficientDrillingLilly");
 }

@@ -1,7 +1,7 @@
 using RimWorld;
 using Verse;
 
-namespace DrillTurret;
+namespace DrillTurretLilly;
 
 public class Alert_DrillTurretNotDrilling : Alert
 {
