@@ -10,7 +10,7 @@ using static Unity.Burst.Intrinsics.X86.Avx;
 
 namespace Lilly
 {
-    //[StaticConstructorOnStartup]
+    
     public class DrillTurretMod : Mod
     {
         public static DrillTurretMod self;
@@ -77,7 +77,7 @@ namespace Lilly
         {
             base.ExposeData();
             Scribe_Values.Look(ref onDebug, "onDebug", false);
-            Scribe_Values.Look(ref onSight, "onDebug", false);
+            Scribe_Values.Look(ref onSight, "onSight", false);
             Scribe_Values.Look(ref DamageMultiple, "DamageMultiple", 100f);
             //Scribe_Values.Look(ref ASAITog, "ASAITog", true);
         }
