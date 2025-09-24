@@ -126,47 +126,48 @@ internal class Building_DrillTurret : Building
     protected override void Tick()
     {
         base.Tick();
+
         if (!powerComp.PowerOn)
-        {
             return;
-        }
 
-        if (Find.TickManager.TicksGame >= nextUpdateTick)
+        if (Find.TickManager.TicksGame < nextUpdateTick)
+            return;
+        nextUpdateTick = Find.TickManager.TicksGame + UpdatePeriodInTicks;
+
+        if (TargetPosition.IsValid && !isValidTargetAt(TargetPosition))        
+                resetTarget();                
+        
+
+        if (!TargetPosition.IsValid)        
+            lookForNewTarget(out TargetPosition);        
+
+        if( targetDesignationDef == DesignationDefOf.Mine)
+        {                
+            var num = computeDrillEfficiency();
+            drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
+            drillDamageAmount = (int)(Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num) * DrillTurretSettings.DamageMultiple));
+            drillRock();            
+        }
+        else if( targetDesignationDef == DesignationDefOf.Deconstruct)
         {
-            nextUpdateTick = Find.TickManager.TicksGame + UpdatePeriodInTicks;
-            if (TargetPosition.IsValid)
+            if (TargetPosition.InBounds(Map))
             {
-                if (!isValidTargetAt(TargetPosition))
-                {
+                var edifice = TargetPosition.GetEdifice(Map);
+                if (edifice != null)                
+                    edifice.Destroy(DestroyMode.Deconstruct);                
+                else
                     resetTarget();
-                }
             }
-
-            if (!TargetPosition.IsValid)
-            {
-                lookForNewTarget(out TargetPosition);
-            }
-            if( targetDesignationDef == DesignationDefOf.Mine)
-            {                
-                var num = computeDrillEfficiency();
-                drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
-                drillDamageAmount = (int)(Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num) * DrillTurretSettings.DamageMultiple));
-                if (TargetPosition.IsValid)
-                {
-                    drillRock();
-                }
-            }
-            else if( targetDesignationDef == DesignationDefOf.Deconstruct)
-            {
-                TargetPosition.GetEdifice(Map).Destroy(DestroyMode.Deconstruct);
-            }
+            else
+                resetTarget();
         }
-
-        var isValid3 = TargetPosition.IsValid;
-        if (isValid3)
+        else
         {
-            startOrMaintainLaserDrillEffecter();
-        }
+            resetTarget();
+        }        
+
+        if (TargetPosition.IsValid)        
+            startOrMaintainLaserDrillEffecter();        
 
         computeDrawingParameters();
     }
@@ -211,10 +212,16 @@ internal class Building_DrillTurret : Building
         }
 
         if (!newTargetPosition.IsValid && !designatedOnly)
-            foreach (var cell in BuildingCache.cached[this.Map]
+        {
+            //var mapList = BuildingCache.cached[this.Map];
+            //MyLog.Warning($"BuildingCache.cached[this.Map].Count {mapList.Count}", print: DrillTurretSettings.onDebug);
+            var cellList = BuildingCache.cached[this.Map]
                 .Select(b => b.Position)
+                //.Where(pos => pos.InBounds(Map))
                 .OrderBy(b => b.DistanceToSquared(Position))
-            )
+                .ToList();
+            //MyLog.Warning($"BuildingCache.cached[this.Map].Count {cellList.Count}", print: DrillTurretSettings.onDebug);
+            foreach (var cell in cellList)
             {
                 if (isValidTargetAt(cell))
                 {
@@ -222,6 +229,7 @@ internal class Building_DrillTurret : Building
                     break;
                 }
             }
+        }
 
         if (newTargetPosition.IsValid)
         {
@@ -234,6 +242,11 @@ internal class Building_DrillTurret : Building
         if (DrillTurretSettings.onSight && !GenSight.LineOfSight(Position, position, Map, false))
         {
             return false;
+        }
+
+        if (!position.InBounds(Map)) { 
+            MyLog.Error($"{position} 위치 벗어남. {Map.info.Size}"); 
+            return false; // 또는 무시, 로그 출력 등
         }
 
         var edifice = position.GetEdifice(Map);
@@ -282,6 +295,12 @@ internal class Building_DrillTurret : Building
             return false;
         }
 
+        if (!position.InBounds(Map))
+        {
+            MyLog.Error($"{position} 위치 벗어남. {Map.info.Size}");
+            return false; // 또는 무시, 로그 출력 등
+        }
+
         var edifice = position.GetEdifice(Map);
         if (edifice == null || !edifice.def.mineable)
         {
@@ -293,9 +312,17 @@ internal class Building_DrillTurret : Building
 
     public void drillRock()
     {
+        if (!TargetPosition.InBounds(Map))
+        {
+            MyLog.Error($"{TargetPosition} 위치 벗어남. {Map.info.Size}");
+            resetTarget();
+            return ; // 또는 무시, 로그 출력 등
+        }
+
         var edifice = TargetPosition.GetEdifice(Map);
         if (edifice == null)
         {
+            resetTarget();
             return;
         }
 
