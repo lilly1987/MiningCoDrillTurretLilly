@@ -3,7 +3,7 @@
   <WorkGiverDef>
     <defName>OperateDrillTurretLilly</defName>
     <label>operate</label>
-    <giverClass>Lilly.WorkGiver_OperateDrillTurret</giverClass>
+    <giverClass>DrillTurretLilly.WorkGiver_OperateDrillTurret</giverClass>
     <workType>Mining</workType>
     <priorityInType>110</priorityInType>
     <verb>operate</verb>

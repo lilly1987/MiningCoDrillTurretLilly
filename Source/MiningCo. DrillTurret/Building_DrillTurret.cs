@@ -10,7 +10,7 @@ using Verse;
 using Verse.Noise;
 using Verse.Sound;
 
-namespace DrillTurretLilly;
+namespace Lilly;
 
 [StaticConstructorOnStartup]
 internal class Building_DrillTurret : Building

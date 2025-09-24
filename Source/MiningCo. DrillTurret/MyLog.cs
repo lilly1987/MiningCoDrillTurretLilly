@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,27 +11,36 @@ namespace Lilly
 {
     public static class MyLog
     {
-        //public static void Warning(string text) => Log.Warning($"Lilly - {text}");
-        //public static void Error(string text) => Log.Error($"Lilly - {text}");
-        //public static void Message(string text) => Log.Message($"Lilly - {text}");
+        private static string _assemblyName;
+
+        public static string AssemblyName
+        {
+            get
+            {
+                if (_assemblyName == null)
+                {
+                    _assemblyName = Assembly.GetCallingAssembly().GetName().Name;
+                }
+                return _assemblyName;
+            }
+        }
 
         public static string MyText(
-            string text, 
-            string memberName, 
-            int lineNumber, 
+            string text,
+            string memberName,
+            int lineNumber,
             string className,
-            string color=null)
+            string color = null)
         {
             if (color != null)
             {
-                return $"<color=#0000FFFF>Lilly</color> <color=#00FF00FF>{className}</color>.<color=#FF8000FF>{memberName}</color> <color=#00FFFFFF>{lineNumber}</color> - <color=#{color}>{text}</color>";
+                return $"<color=#BDC3C7FF>{AssemblyName}</color>.<color=#00FF00FF>{className}</color>.<color=#FF8000FF>{memberName}</color> <color=#00FFFFFF>{lineNumber}</color> - <color=#{color}>{text}</color>";
             }
-            return $"<color=#0000FFFF>Lilly</color> <color=#00FF00FF>{className}</color>.<color=#FF8000FF>{memberName}</color> <color=#00FFFFFF>{lineNumber}</color> - {text}";
+            return $"<color=#BDC3C7FF>{AssemblyName}</color>.<color=#00FF00FF>{className}</color>.<color=#FF8000FF>{memberName}</color> <color=#00FFFFFF>{lineNumber}</color> - {text}";
         }
 
-
         public static void Warning(string text,
-            bool print=true, string color = null,
+            bool print = true, string color = null,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string filePath = "",
             [CallerLineNumber] int lineNumber = 0
@@ -40,7 +50,6 @@ namespace Lilly
             string className = System.IO.Path.GetFileNameWithoutExtension(filePath);
             Log.Warning(MyText(text, memberName, lineNumber, className, color));
         }
-
 
         public static void Error(string text,
             bool print = true, string color = null,

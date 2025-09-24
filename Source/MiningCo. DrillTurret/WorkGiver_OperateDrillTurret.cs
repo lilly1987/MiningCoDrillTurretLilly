@@ -3,7 +3,7 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 
-namespace DrillTurretLilly;
+namespace Lilly;
 
 public class WorkGiver_OperateDrillTurret : WorkGiver_Scanner
 {
