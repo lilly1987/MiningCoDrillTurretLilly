@@ -42,6 +42,7 @@ namespace Lilly
             // ---------
 
             listing.CheckboxLabeled($"Debug", ref DrillTurretSettings.onDebug);
+            listing.CheckboxLabeled($"catch Debug", ref BuildingCache.DebugMode);
 
             listing.CheckboxLabeled($"시야제한 적용", ref DrillTurretSettings.onSight);
 
@@ -77,6 +78,7 @@ namespace Lilly
         {
             base.ExposeData();
             Scribe_Values.Look(ref onDebug, "onDebug", false);
+            Scribe_Values.Look(ref BuildingCache.DebugMode, "BuildingCache.DebugMode", false);
             Scribe_Values.Look(ref onSight, "onSight", false);
             Scribe_Values.Look(ref DamageMultiple, "DamageMultiple", 100f);
             //Scribe_Values.Look(ref ASAITog, "ASAITog", true);

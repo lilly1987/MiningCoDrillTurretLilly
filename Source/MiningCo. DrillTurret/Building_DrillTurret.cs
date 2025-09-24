@@ -1,6 +1,7 @@
 using HarmonyLib;
 using Lilly;
 using RimWorld;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,7 +14,7 @@ using Verse.Sound;
 namespace Lilly;
 
 [StaticConstructorOnStartup]
-internal class Building_DrillTurret : Building
+public class Building_DrillTurret : Building
 {
     public const int UpdatePeriodInTicks = 30;
 
@@ -63,6 +64,13 @@ internal class Building_DrillTurret : Building
 
     public float turretTopRotation;
 
+    public SortedSet<IntVec3> sortedCells;
+    public SortedSet<IntVec3> sortedCellsMine;
+    public SortedSet<IntVec3> sortedCellsDeconstruct;
+    public SortedSet<IntVec3> sortedCellsMine1;
+    public SortedSet<IntVec3> sortedCellsDeconstruct1;
+
+    //  이거 다음에 FinalizeInit, FinalizeLoading 순으로 실행
     public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
         base.SpawnSetup(map, respawningAfterLoad);
@@ -75,10 +83,68 @@ internal class Building_DrillTurret : Building
 
         powerComp.powerStoppedAction = OnPoweredOff;
         turretTopMatrix.SetTRS(base.DrawPos + Altitudes.AltIncVect, turretTopRotation.ToQuat(), turretTopScale);
+
+        BuildingCache.building_DrillTurrets.Add(this);
+        sortedCells = new SortedSet<IntVec3>(new DistanceComparer(Position));
+        sortedCellsMine = new SortedSet<IntVec3>(new DistanceComparer(Position));
+        sortedCellsDeconstruct = new SortedSet<IntVec3>(new DistanceComparer(Position));
+        sortedCellsMine1 = new SortedSet<IntVec3>(new DistanceComparer(Position));
+        sortedCellsDeconstruct1 = new SortedSet<IntVec3>(new DistanceComparer(Position));
+        BuildingCache.actionSpawnSetup += GetSpawnSetup;
+        BuildingCache.actionDeSpawn += GetDeSpawn;
+        BuildingCache.actionAddDesignation += AddDesignation;
+        BuildingCache.actionRemoveDesignation += RemoveDesignation;
+        MyLog.Warning($"SpawnSetup", print: DrillTurretSettings.onDebug);
+    }
+
+    private void RemoveDesignation(Designation designation)
+    {
+        if (designation.def == DesignationDefOf.Mine)
+        {
+            sortedCellsMine1.Remove(designation.target.Cell);
+        }
+        else if (designation.def == DesignationDefOf.Deconstruct && designation.target.HasThing)
+        {
+            sortedCellsDeconstruct1.Remove(designation.target.Thing.Position);
+        }
+    }
+
+    private void AddDesignation(Designation designation)
+    {
+        if (designation.def == DesignationDefOf.Mine)
+        {
+            sortedCellsMine1.Add(designation.target.Cell);
+        }
+        else if (designation.def == DesignationDefOf.Deconstruct && designation.target.HasThing)
+        {
+            sortedCellsDeconstruct1.Add(designation.target.Thing.Position);
+        }
+    }
+
+    private void GetDeSpawn(Building building)
+    {
+        sortedCells.Remove(building.Position);
+        if (building.def.mineable)
+            sortedCellsMine.Remove(building.Position);
+        if (building.def.building.IsDeconstructible)
+            sortedCellsDeconstruct.Remove(building.Position);
+    }
+
+    private void GetSpawnSetup(Building building)
+    {
+        sortedCells.Add(building.Position);
+        if (building.def.mineable)
+            sortedCellsMine.Add(building.Position);
+        if (building.def.building.IsDeconstructible)
+            sortedCellsDeconstruct.Add(building.Position);
     }
 
     public override void DeSpawn(DestroyMode mode = DestroyMode.Vanish)
     {
+        BuildingCache.actionSpawnSetup -= GetSpawnSetup;
+        BuildingCache.actionDeSpawn -= GetDeSpawn;
+        BuildingCache.actionAddDesignation -= AddDesignation;
+        BuildingCache.actionRemoveDesignation -= RemoveDesignation;
         base.DeSpawn(mode);
         resetTarget();
     }
@@ -134,42 +200,40 @@ internal class Building_DrillTurret : Building
         {
             nextUpdateTick = Find.TickManager.TicksGame + UpdatePeriodInTicks;
 
-            if (TargetPosition.IsValid && !isValidTargetAt(TargetPosition))
-                resetTarget();
-
-
             if (!TargetPosition.IsValid)
                 lookForNewTarget(out TargetPosition);
 
-            if (targetDesignationDef == DesignationDefOf.Mine)
+            if (TargetPosition.IsValid && isValidTargetAt(TargetPosition))
             {
-                var num = computeDrillEfficiency();
-                drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
-                drillDamageAmount = (int)(Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num) * DrillTurretSettings.DamageMultiple));
-                drillRock();
-            }
-            else if (targetDesignationDef == DesignationDefOf.Deconstruct)
-            {
-                if (TargetPosition.InBounds(Map))
+                if (targetDesignationDef == DesignationDefOf.Mine)
+                {
+                    var num = computeDrillEfficiency();
+                    drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
+                    drillDamageAmount = (int)(Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num) * DrillTurretSettings.DamageMultiple));
+                    drillRock();
+                }
+                else if (targetDesignationDef == DesignationDefOf.Deconstruct)
                 {
                     var edifice = TargetPosition.GetEdifice(Map);
                     if (edifice != null)
+                    {
                         edifice.Destroy(DestroyMode.Deconstruct);
+                        resetTarget();
+                        lookForNewTarget(out TargetPosition);
+                    }
                     else
                         resetTarget();
                 }
                 else
+                {
                     resetTarget();
+                }
+                startOrMaintainLaserDrillEffecter();
             }
             else
-            {
                 resetTarget();
-            }
         }
-        if (TargetPosition.IsValid)
-            startOrMaintainLaserDrillEffecter();
 
-        //computeDrawingParameters();
     }
 
     public void OnPoweredOff()
@@ -183,59 +247,51 @@ internal class Building_DrillTurret : Building
     {
         newTargetPosition = IntVec3.Invalid;
 
-        List<IntVec3> list=new List<IntVec3>();
-
-        if ( miningMode is MiningMode.Ores or MiningMode.Rocks or MiningMode.All)
-            list.AddRange(
-                this.Map.designationManager.designationsByDef[DesignationDefOf.Mine]
-                    .Select(d => d.target.Cell)
-        )
-        ;
-
-        if ( miningMode is MiningMode.Deconstruct or MiningMode.All)
-            list.AddRange(
-                this.Map.designationManager.designationsByDef[DesignationDefOf.Deconstruct]
-                .Where(d => d.target.HasThing)
-                .Select(d => d.target.Thing.Position)
-        )
-        ;
-
-        foreach (var cell in list
-            .OrderBy(b => b.DistanceToSquared(Position))
-        )
+        if (!newTargetPosition.IsValid && miningMode is MiningMode.Deconstruct or MiningMode.All)
         {
-            if (isValidTargetAt(cell))
-            {
-                newTargetPosition = cell;
-                break;
-            }
+            if (NewMethod(ref newTargetPosition, sortedCellsDeconstruct1)) return;
+        }
+
+        if (!newTargetPosition.IsValid && miningMode is MiningMode.Ores or MiningMode.Rocks or MiningMode.All)
+        {
+            if (NewMethod(ref newTargetPosition, sortedCellsMine1)) return;            
+        }
+
+        if (!newTargetPosition.IsValid && !designatedOnly && miningMode is MiningMode.Ores or MiningMode.Rocks or MiningMode.All)
+        {
+            if (NewMethod(ref newTargetPosition, sortedCellsMine)) return;
+        }
+
+        if (!newTargetPosition.IsValid && !designatedOnly && miningMode is MiningMode.Deconstruct or MiningMode.All)
+        {
+            if (NewMethod(ref newTargetPosition, sortedCellsDeconstruct)) return;
         }
 
         if (!newTargetPosition.IsValid && !designatedOnly)
         {
-            //var mapList = BuildingCache.cached[this.Map];
-            //MyLog.Warning($"BuildingCache.cached[this.Map].Count {mapList.Count}", print: DrillTurretSettings.onDebug);
-            var cellList = BuildingCache.cached[this.Map]
-                .Select(b => b.Position)
-                //.Where(pos => pos.InBounds(Map))
-                .OrderBy(b => b.DistanceToSquared(Position))
-                .ToList();
-            //MyLog.Warning($"BuildingCache.cached[this.Map].Count {cellList.Count}", print: DrillTurretSettings.onDebug);
-            foreach (var cell in cellList)
-            {
-                if (isValidTargetAt(cell))
-                {
-                    newTargetPosition = cell;
-                    break;
-                }
-            }
+            if (NewMethod(ref newTargetPosition, sortedCells)) return;
         }
 
-        if (newTargetPosition.IsValid)
-        {
-            turretTopRotation = Mathf.Repeat((TargetPosition.ToVector3Shifted() - this.TrueCenter()).AngleFlat(), 360f);
-        }
     }
+
+    private bool NewMethod(ref IntVec3 newTargetPosition,SortedSet<IntVec3>  intVec3s)
+    {
+        foreach (var cell in intVec3s)
+        {
+            if (isValidTargetAt(cell))
+            {
+                newTargetPosition = cell;
+                if (newTargetPosition.IsValid)
+                {
+                    turretTopRotation = Mathf.Repeat((TargetPosition.ToVector3Shifted() - this.TrueCenter()).AngleFlat(), 360f);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 
     public bool isValidTargetAt(IntVec3 position)
     {
@@ -373,6 +429,7 @@ internal class Building_DrillTurret : Building
 
     private int nextEffectTick = 0;
     private const int EffectTickInterval = 5; // 예: 10틱마다 호출
+
 
     public void startOrMaintainLaserDrillEffecter()
     {
