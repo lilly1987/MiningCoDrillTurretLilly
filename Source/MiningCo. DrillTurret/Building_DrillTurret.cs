@@ -130,46 +130,46 @@ internal class Building_DrillTurret : Building
         if (!powerComp.PowerOn)
             return;
 
-        if (Find.TickManager.TicksGame < nextUpdateTick)
-            return;
-        nextUpdateTick = Find.TickManager.TicksGame + UpdatePeriodInTicks;
-
-        if (TargetPosition.IsValid && !isValidTargetAt(TargetPosition))        
-                resetTarget();                
-        
-
-        if (!TargetPosition.IsValid)        
-            lookForNewTarget(out TargetPosition);        
-
-        if( targetDesignationDef == DesignationDefOf.Mine)
-        {                
-            var num = computeDrillEfficiency();
-            drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
-            drillDamageAmount = (int)(Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num) * DrillTurretSettings.DamageMultiple));
-            drillRock();            
-        }
-        else if( targetDesignationDef == DesignationDefOf.Deconstruct)
+        if (Find.TickManager.TicksGame >= nextUpdateTick)
         {
-            if (TargetPosition.InBounds(Map))
+            nextUpdateTick = Find.TickManager.TicksGame + UpdatePeriodInTicks;
+
+            if (TargetPosition.IsValid && !isValidTargetAt(TargetPosition))
+                resetTarget();
+
+
+            if (!TargetPosition.IsValid)
+                lookForNewTarget(out TargetPosition);
+
+            if (targetDesignationDef == DesignationDefOf.Mine)
             {
-                var edifice = TargetPosition.GetEdifice(Map);
-                if (edifice != null)                
-                    edifice.Destroy(DestroyMode.Deconstruct);                
+                var num = computeDrillEfficiency();
+                drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
+                drillDamageAmount = (int)(Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num) * DrillTurretSettings.DamageMultiple));
+                drillRock();
+            }
+            else if (targetDesignationDef == DesignationDefOf.Deconstruct)
+            {
+                if (TargetPosition.InBounds(Map))
+                {
+                    var edifice = TargetPosition.GetEdifice(Map);
+                    if (edifice != null)
+                        edifice.Destroy(DestroyMode.Deconstruct);
+                    else
+                        resetTarget();
+                }
                 else
                     resetTarget();
             }
             else
+            {
                 resetTarget();
+            }
         }
-        else
-        {
-            resetTarget();
-        }        
+        if (TargetPosition.IsValid)
+            startOrMaintainLaserDrillEffecter();
 
-        if (TargetPosition.IsValid)        
-            startOrMaintainLaserDrillEffecter();        
-
-        computeDrawingParameters();
+        //computeDrawingParameters();
     }
 
     public void OnPoweredOff()
@@ -326,37 +326,30 @@ internal class Building_DrillTurret : Building
             return;
         }
 
-        //if (miningMode != MiningMode.Deconstruct)
-        //{
-            if (edifice.HitPoints > drillDamageAmount)
+        if (edifice.HitPoints > drillDamageAmount)
+        {
+            edifice.TakeDamage(new DamageInfo(DamageDefOf.Mining, drillDamageAmount));
+        }
+        else
+        {
+            if (edifice.def.building.isResourceRock && edifice.def.building.mineableThing != null)
             {
-                edifice.TakeDamage(new DamageInfo(DamageDefOf.Mining, drillDamageAmount));
+                var num = edifice.def.building.mineableYield;
+                if (!Util_DrillTurret.ResearchDrillTurretEfficientDrillingDef.IsFinished)
+                {
+                    num = Mathf.RoundToInt(num * 0.75f);
+                }
+
+                var thing = ThingMaker.MakeThing(edifice.def.building.mineableThing);
+                thing.stackCount = num;
+                GenSpawn.Spawn(thing, edifice.Position, Map);
+                edifice.Destroy();
             }
             else
             {
-                if (edifice.def.building.isResourceRock && edifice.def.building.mineableThing != null)
-                {
-                    var num = edifice.def.building.mineableYield;
-                    if (!Util_DrillTurret.ResearchDrillTurretEfficientDrillingDef.IsFinished)
-                    {
-                        num = Mathf.RoundToInt(num * 0.75f);
-                    }
-
-                    var thing = ThingMaker.MakeThing(edifice.def.building.mineableThing);
-                    thing.stackCount = num;
-                    GenSpawn.Spawn(thing, edifice.Position, Map);
-                    edifice.Destroy();
-                }
-                else
-                {
-                    edifice.Destroy(DestroyMode.KillFinalize);
-                }
+                edifice.Destroy(DestroyMode.KillFinalize);
             }
-        //}
-        //else if (edifice.def.building.IsDeconstructible)
-        //{
-        //    edifice.Destroy(DestroyMode.Deconstruct);
-        //}
+        }
 
         if (!edifice.DestroyedOrNull())
         {
@@ -378,8 +371,16 @@ internal class Building_DrillTurret : Building
         laserDrillEffecter = null;
     }
 
+    private int nextEffectTick = 0;
+    private const int EffectTickInterval = 5; // 예: 10틱마다 호출
+
     public void startOrMaintainLaserDrillEffecter()
     {
+        if (Find.TickManager.TicksGame < nextEffectTick)
+            return;
+
+        nextEffectTick = Find.TickManager.TicksGame + EffectTickInterval;
+
         if (laserDrillEffecter == null)
         {
             laserDrillEffecter = new Effecter(DefDatabase<EffecterDef>.GetNamed("LaserDrillLilly"));
@@ -540,6 +541,11 @@ internal class Building_DrillTurret : Building
         {
             Graphics.DrawMesh(MeshPool.plane10, turretTopMatrix, TurretTopOffTexture, 0);
         }
+
+        //if (TargetPosition.IsValid)
+        //    startOrMaintainLaserDrillEffecter();
+
+        computeDrawingParameters();
     }
 
     public enum MiningMode
