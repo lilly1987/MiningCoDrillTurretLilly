@@ -90,6 +90,17 @@ public class Building_DrillTurret : Building
         sortedCellsMine1 = new SortedSet<IntVec3>(new DistanceComparer(Position));
         sortedCellsDeconstruct1 = new SortedSet<IntVec3>(new DistanceComparer(Position));
 
+        if (BuildingCache.dbuildings.TryGetValue(map, out var buildings))
+            foreach (var item in buildings)
+            {
+                GetSpawnSetup(item);
+            }
+        if (BuildingCache.ddesignations.TryGetValue(map, out var designations))
+            foreach (var item in designations)
+            {
+                AddDesignation(item);
+            }
+
         BuildingCache.actionSpawnSetup += GetSpawnSetup;
         BuildingCache.actionDeSpawn += GetDeSpawn;
         BuildingCache.actionAddDesignation += AddDesignation;
@@ -97,16 +108,8 @@ public class Building_DrillTurret : Building
 
         BuildingCache.building_DrillTurrets.Add(this);
 
-        foreach (var item in BuildingCache.buildings)
-        {
-            GetSpawnSetup(item);
-        }
-        foreach (var item in BuildingCache.designations)
-        {
-            AddDesignation(item);
-        }
 
-        MyLog.Warning($"Building_DrillTurret.SpawnSetup/{BuildingCache.buildings.Count}/{BuildingCache.designations.Count}", print: DrillTurretSettings.onDebug);
+        MyLog.Message($"Building_DrillTurret.SpawnSetup/{BuildingCache.buildings.Count}/{BuildingCache.designations.Count}", print: DrillTurretSettings.onDebug);
     }
 
     private void RemoveDesignation(Designation designation)
@@ -240,7 +243,7 @@ public class Building_DrillTurret : Building
             }
             else
             {
-                MyLog.Error($"Unknown designation {TargetPosition} {targetDesignationDef}");
+                MyLog.Warning($"Unknown designation {TargetPosition} {targetDesignationDef}");
                 resetTarget();
                 lookForNewTarget(out TargetPosition);
             }
@@ -315,7 +318,7 @@ public class Building_DrillTurret : Building
         }
 
         if (!position.InBounds(Map)) { 
-            MyLog.Error($"{position} 위치 벗어남. {Map.info.Size}"); 
+            MyLog.Warning($"{position} 위치 벗어남. {Map.info.Size}"); 
             return false; // 또는 무시, 로그 출력 등
         }
 
@@ -367,7 +370,7 @@ public class Building_DrillTurret : Building
 
         if (!position.InBounds(Map))
         {
-            MyLog.Error($"{position} 위치 벗어남. {Map.info.Size}");
+            MyLog.Warning($"{position} 위치 벗어남. {Map.info.Size}");
             return false; // 또는 무시, 로그 출력 등
         }
 
@@ -384,7 +387,7 @@ public class Building_DrillTurret : Building
     {
         if (!TargetPosition.InBounds(Map))
         {
-            MyLog.Error($"{TargetPosition} 위치 벗어남. {Map.info.Size}");
+            MyLog.Warning($"{TargetPosition} 위치 벗어남. {Map.info.Size}");
             resetTarget();
             return ; // 또는 무시, 로그 출력 등
         }

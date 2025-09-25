@@ -71,6 +71,7 @@ namespace Lilly
             if (!print) return;
             string className = System.IO.Path.GetFileNameWithoutExtension(filePath);
             Log.Message(MyText(text, memberName, lineNumber, className, color));
+            
         }
 
     }
