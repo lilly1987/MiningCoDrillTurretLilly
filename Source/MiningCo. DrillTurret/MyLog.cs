@@ -34,9 +34,9 @@ namespace Lilly
         {
             if (color != null)
             {
-                return $"<color=#BDC3C7FF>{AssemblyName}</color>.<color=#00FF00FF>{className}</color>.<color=#FF8000FF>{memberName}</color> <color=#00FFFFFF>{lineNumber}</color> - <color=#{color}>{text}</color>";
+                return $"<color=#9B59B6FF>{AssemblyName}</color>.<color=#00FF00FF>{className}</color>.<color=#FF8000FF>{memberName}</color> <color=#00FFFFFF>{lineNumber}</color> - <color=#{color}>{text}</color>";
             }
-            return $"<color=#BDC3C7FF>{AssemblyName}</color>.<color=#00FF00FF>{className}</color>.<color=#FF8000FF>{memberName}</color> <color=#00FFFFFF>{lineNumber}</color> - {text}";
+            return $"<color=#9B59B6FF>{AssemblyName}</color>.<color=#00FF00FF>{className}</color>.<color=#FF8000FF>{memberName}</color> <color=#00FFFFFF>{lineNumber}</color> - {text}";
         }
 
         public static void Warning(string text,

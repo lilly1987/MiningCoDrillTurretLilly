@@ -3,7 +3,7 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 
-namespace Lilly;
+namespace Lilly.DrillTurret;
 
 public class JobDriver_OperateDrillTurret : JobDriver
 {

@@ -1,5 +1,4 @@
 using HarmonyLib;
-using Lilly;
 using RimWorld;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ using Verse;
 using Verse.Noise;
 using Verse.Sound;
 
-namespace Lilly;
+namespace Lilly.DrillTurret;
 
 [StaticConstructorOnStartup]
 public class Building_DrillTurret : Building

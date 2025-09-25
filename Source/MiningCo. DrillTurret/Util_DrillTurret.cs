@@ -1,6 +1,6 @@
 using Verse;
 
-namespace Lilly;
+namespace Lilly.DrillTurret;
 
 public static class Util_DrillTurret
 {

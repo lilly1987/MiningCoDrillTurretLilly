@@ -14,7 +14,7 @@ using Verse;
 using Verse.Noise;
 using static UnityEngine.UI.Image;
 
-namespace Lilly
+namespace Lilly.DrillTurret
 {    public class DistanceComparer : IComparer<IntVec3>
     {
         private readonly IntVec3 origin;

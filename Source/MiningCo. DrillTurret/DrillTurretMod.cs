@@ -8,7 +8,7 @@ using UnityEngine;
 using Verse;
 using static Unity.Burst.Intrinsics.X86.Avx;
 
-namespace Lilly
+namespace Lilly.DrillTurret
 {
     
     public class DrillTurretMod : Mod
