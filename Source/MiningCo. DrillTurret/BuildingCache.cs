@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using RimWorld;
+using RimWorld.Planet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Verse;
+using Verse.Noise;
 using static UnityEngine.UI.Image;
 
 namespace Lilly
@@ -46,12 +48,14 @@ namespace Lilly
 
         public static bool DebugMode=false;
 
-        public static Dictionary<Map, List<Building>> cached = new Dictionary<Map, List<Building>>();
-        public static List<Building_DrillTurret> drills = new List<Building_DrillTurret>();
+        public static List<Building> buildings = new List<Building>();
+        public static List<Designation> designations = new List<Designation>();
+
         public static Action<Building> actionSpawnSetup;
         public static Action<Building> actionDeSpawn;
         public static Action<Designation> actionAddDesignation;
         public static Action<Designation> actionRemoveDesignation;
+
         public static List<Building_DrillTurret>  building_DrillTurrets=new List<Building_DrillTurret>();
 
         static BuildingCache()
@@ -84,26 +88,22 @@ namespace Lilly
             Scribe_Values.Look(ref DebugMode, "DebugMode", false);
         }
 
-        [HarmonyPatch(typeof(Map), "FinalizeInit")]
-        public static class Patch_MapFinalizeInit
+        // Map.FinalizeInit
+        // Map.FinalizeLoading 로딩때만
+        // MapComponentUtility.MapGenerated
+        // MapGenerator.GenerateMap
+        // Building.SpawnSetup
+        // 순으로 완료됨
+
+        private static void NewMethod(List<Building> mineableBuildings)
         {
-            [HarmonyPostfix]
-            public static void OnMapInit(Map __instance)
+            foreach (var b in mineableBuildings)
             {
-                MyLog.Warning($"Map FinalizeInit {__instance} {__instance.Tile}",print: DebugMode);
-                var mineableBuildings = __instance.listerThings.AllThings
-                    .OfType<Building>()
-                    //.Where(b => b.def.mineable)
-                    .ToList();
+                actionSpawnSetup?.Invoke(b);
+            }
 
-                BuildingCache.cached[__instance] = mineableBuildings;
-
-                foreach (var b in mineableBuildings)
-                {
-                    actionSpawnSetup?.Invoke(b);
-                }
-
-                foreach(var b in building_DrillTurrets)
+            if (DebugMode)
+                foreach (var b in building_DrillTurrets)
                 {
                     MyLog.Warning($"Map sortedCells {b.sortedCells.Count} {b.sortedCells.Min}", print: DebugMode);
                     MyLog.Warning($"Map sortedCellsMine {b.sortedCellsMine.Count} {b.sortedCellsMine.Min}", print: DebugMode);
@@ -111,83 +111,24 @@ namespace Lilly
                     MyLog.Warning($"Map sortedCellsMine1 {b.sortedCellsMine1.Count} {b.sortedCellsMine1.Min}", print: DebugMode);
                     MyLog.Warning($"Map sortedCellsDeconstruct1 {b.sortedCellsDeconstruct1.Count} {b.sortedCellsDeconstruct1.Min}", print: DebugMode);
                 }
-            }
         }
 
-        [HarmonyPatch(typeof(Map), "FinalizeLoading")]
-        public static class Patch_Map_FinalizeLoading
-        {
-            [HarmonyPostfix]
-            public static void OnMapLoaded(Map __instance)
-            {
-                MyLog.Warning($"Map FinalizeLoading {__instance} {__instance.Tile}", print: DebugMode);
-                var mineables = __instance.listerThings.AllThings
-                    .OfType<Building>()
-                    //.Where(b => b.def.mineable)
-                    .ToList();
-
-                BuildingCache.cached[__instance] = mineables;
-            }
-        }
-
-        [HarmonyPatch(typeof(ThingSetMaker_Meteorite), "Generate", new System.Type[] { typeof(ThingSetMakerParams),typeof(List<Thing>) })]
-        public static class Patch_MeteoriteGenerate
-        {
-            [HarmonyPostfix]
-            public static void Patch(ThingSetMakerParams parms, List<Thing> outThings)
-            {
-                MyLog.Warning($"Meteorite Generated on tile {parms.tile}, things count: {outThings.Count}", print: DebugMode);
-
-                MyLog.Warning($"parms.tile : {parms.tile == -1}", print: DebugMode);
-                if (parms.tile == -1)
-                {
-                    //return;
-                }
-
-                Map map = Find.Maps.FirstOrDefault(m => m.Tile == parms.tile);
-                MyLog.Warning($"map : {map}", print: DebugMode);
-                if (map == null) 
-                    return;
-
-                var mineables = outThings
-                    .OfType<Building>()
-                    //.Where(b => b.def.mineable)
-                    .ToList();
-
-                if (mineables.Count == 0) return;
-
-                if (!BuildingCache.cached.TryGetValue(map, out var list))
-                    BuildingCache.cached[map] = list = new List<Building>();
-
-                list.AddRange(mineables);
-            }
-        }
-
-        [HarmonyPatch(typeof(Building), nameof(Thing.SpawnSetup))]// 됨
+        [HarmonyPatch(typeof(Building), nameof(Building.SpawnSetup))]// 됨
         public static class Patch_Building_SpawnSetup
         {
             // __instance.Map 는 항상 null
-            //[HarmonyPrefix]
             [HarmonyPostfix]
-            public static void Patch(Building __instance, Map map)//, bool respawningAfterLoad
+            public static void SpawnSetup(Building __instance, Map map, bool respawningAfterLoad)//
             {
-                if (map == null)
-                    return;
-
-                if (actionSpawnSetup != null && __instance.Position.InBounds(map))
+                MyLog.Warning($"Building.SpawnSetup : {map} / {respawningAfterLoad}", print: DebugMode);
+                
+                if ( (__instance.def.mineable || __instance.def.building.IsDeconstructible))
                 {
-                    //MyLog.Warning($"SpawnSetup1 / {__instance} / {map} / {__instance.def.defName} / {__instance.def.mineable} / {__instance.def.building.IsDeconstructible}", print: DebugMode);
-                    if ( (__instance.def.mineable || __instance.def.building.IsDeconstructible))
-                        actionSpawnSetup(__instance);
-                }
-
-                // 작동 안됨?
-                if (
-                    //__instance.def.mineable &&
-                    BuildingCache.cached.TryGetValue(map, out var list))
-                {
-                    MyLog.Warning($"SpawnSetup2 / {__instance} / {map} / {__instance.def.defName}", print: DebugMode);
-                    list.Add(__instance);
+                    //MyLog.Warning($"Building.SpawnSetup ok : {map} / {respawningAfterLoad}", print: DebugMode);
+                    actionSpawnSetup?.Invoke(__instance);
+                    //MyLog.Warning($"Building.SpawnSetup ok2 : {map} / {respawningAfterLoad}", print: DebugMode);
+                    buildings.Add(__instance);
+                    //MyLog.Warning($"Building.SpawnSetup ok3 : {map} / {respawningAfterLoad}", print: DebugMode);
                 }
             }
         }
@@ -199,17 +140,10 @@ namespace Lilly
             public static void Patch(Building __instance)
             {
                 //MyLog.Warning($"DeSpawn {__instance} {__instance.Map} {__instance.def.defName}", print: DebugMode);
-
-                if (__instance.Map == null)
-                    return;
-
-                if (actionDeSpawn != null)
-                    actionDeSpawn(__instance);
-
-                if (__instance.def.mineable &&
-                    BuildingCache.cached.TryGetValue(__instance.Map, out var list))
+                if ((__instance.def.mineable || __instance.def.building.IsDeconstructible))
                 {
-                    list.Remove(__instance);
+                    actionDeSpawn?.Invoke(__instance);
+                    buildings.Remove(__instance);
                 }
             }
         }
@@ -224,7 +158,10 @@ namespace Lilly
                 if (actionAddDesignation != null
                     && (newDes.def == DesignationDefOf.Mine
                     || newDes.def == DesignationDefOf.Deconstruct && newDes.target.HasThing))
-                    actionAddDesignation(newDes);
+                {
+                    actionAddDesignation?.Invoke(newDes);
+                    designations.Add(newDes);
+                }
             }
         }
 
@@ -238,27 +175,9 @@ namespace Lilly
                 if (actionRemoveDesignation != null
                     && (des.def == DesignationDefOf.Mine
                     || des.def == DesignationDefOf.Deconstruct && des.target.HasThing))
-                    actionRemoveDesignation(des);
-            }
-        }
-
-        //[HarmonyPatch(typeof(Thing), nameof(Thing.DeSpawn))]
-        public static class Patch_Thing_DeSpawn
-        {
-            [HarmonyPrefix]
-            public static void Patch(Thing __instance)
-            {
-                    MyLog.Warning($"Thing DeSpawn {__instance} {__instance.Map} {__instance.def.defName}", print: DebugMode);
-
-                if (__instance.Map == null || !(__instance is Building))
-                    return;
-
-                Building building = __instance as Building;
-                if (
-                    //building.def.mineable &&
-                    BuildingCache.cached.TryGetValue(__instance.Map, out var list))
                 {
-                    list.Remove(building);
+                    actionRemoveDesignation?.Invoke(des);
+                    designations.Add(des);
                 }
             }
         }

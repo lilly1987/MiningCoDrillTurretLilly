@@ -70,7 +70,7 @@ public class Building_DrillTurret : Building
     public SortedSet<IntVec3> sortedCellsMine1;
     public SortedSet<IntVec3> sortedCellsDeconstruct1;
 
-    //  이거 다음에 FinalizeInit, FinalizeLoading 순으로 실행
+    //   FinalizeInit, FinalizeLoading 다음에 실행됨
     public override void SpawnSetup(Map map, bool respawningAfterLoad)
     {
         base.SpawnSetup(map, respawningAfterLoad);
@@ -84,17 +84,29 @@ public class Building_DrillTurret : Building
         powerComp.powerStoppedAction = OnPoweredOff;
         turretTopMatrix.SetTRS(base.DrawPos + Altitudes.AltIncVect, turretTopRotation.ToQuat(), turretTopScale);
 
-        BuildingCache.building_DrillTurrets.Add(this);
         sortedCells = new SortedSet<IntVec3>(new DistanceComparer(Position));
         sortedCellsMine = new SortedSet<IntVec3>(new DistanceComparer(Position));
         sortedCellsDeconstruct = new SortedSet<IntVec3>(new DistanceComparer(Position));
         sortedCellsMine1 = new SortedSet<IntVec3>(new DistanceComparer(Position));
         sortedCellsDeconstruct1 = new SortedSet<IntVec3>(new DistanceComparer(Position));
+
         BuildingCache.actionSpawnSetup += GetSpawnSetup;
         BuildingCache.actionDeSpawn += GetDeSpawn;
         BuildingCache.actionAddDesignation += AddDesignation;
         BuildingCache.actionRemoveDesignation += RemoveDesignation;
-        MyLog.Warning($"SpawnSetup", print: DrillTurretSettings.onDebug);
+
+        BuildingCache.building_DrillTurrets.Add(this);
+
+        foreach (var item in BuildingCache.buildings)
+        {
+            GetSpawnSetup(item);
+        }
+        foreach (var item in BuildingCache.designations)
+        {
+            AddDesignation(item);
+        }
+
+        MyLog.Warning($"Building_DrillTurret.SpawnSetup/{BuildingCache.buildings.Count}/{BuildingCache.designations.Count}", print: DrillTurretSettings.onDebug);
     }
 
     private void RemoveDesignation(Designation designation)
@@ -207,32 +219,34 @@ public class Building_DrillTurret : Building
         if (!TargetPosition.IsValid)
             lookForNewTarget(out TargetPosition);
 
-        if (!TargetPosition.IsValid || !isValidTargetAt(TargetPosition))
-            return;
-            
-        if (targetDesignationDef == DesignationDefOf.Mine)
+        if (TargetPosition.IsValid )
         {
-            var num = computeDrillEfficiency();
-            drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
-            drillDamageAmount = (int)(Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num) * DrillTurretSettings.DamageMultiple));
-            drillRock();
-        }
-        else if (targetDesignationDef == DesignationDefOf.Deconstruct)
-        {
-            var edifice = TargetPosition.GetEdifice(Map);
-            if (edifice != null)
+            if (targetDesignationDef == DesignationDefOf.Mine)
             {
-                edifice.Destroy(DestroyMode.Deconstruct);
+                var num = computeDrillEfficiency();
+                drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
+                drillDamageAmount = (int)(Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num) * DrillTurretSettings.DamageMultiple));
+                drillRock();
             }
-            resetTarget();
-            lookForNewTarget(out TargetPosition);                    
+            else if (targetDesignationDef == DesignationDefOf.Deconstruct)
+            {
+                var edifice = TargetPosition.GetEdifice(Map);
+                if (edifice != null)
+                {
+                    edifice.Destroy(DestroyMode.Deconstruct);
+                }
+                resetTarget();
+                lookForNewTarget(out TargetPosition);
+            }
+            else
+            {
+                MyLog.Error($"Unknown designation {TargetPosition} {targetDesignationDef}");
+                resetTarget();
+                lookForNewTarget(out TargetPosition);
+            }
+
+            startOrMaintainLaserDrillEffecter();            
         }
-        else
-        {
-            resetTarget();
-            lookForNewTarget(out TargetPosition);
-        }
-        startOrMaintainLaserDrillEffecter();            
         
     }
 
