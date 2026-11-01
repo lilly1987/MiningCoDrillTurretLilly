@@ -1,11 +1,16 @@
 # [MiningCo. DrillTurret (Continued)](https://steamcommunity.com/sharedfiles/filedetails/?id=3258344832)
-
+
 ![Image](https://img.litet.net/logos/Info.png)
 
 Update of Rikikis mod https://steamcommunity.com/sharedfiles/filedetails/?id=974398773
 
 - Added mod setting to reduce power draw to 25W while idle (no target in range), ramping up to full power while actively drilling
 - Added gizmo to control power draw and efficiency
+- Added global settings for unmanned operation, unlimited map range, ignoring walls, drill damage, drill interval, and target search interval
+- Added a designated-only mining mode that includes both Mine and MineVein designations
+- Added designated-target priority and numeric text fields alongside the sliders
+
+Supported languages: English, French, German, Korean, and Simplified Chinese.
 
 ![Image](https://img.litet.net/logos/Notice.png)
 	
@@ -24,9 +29,11 @@ Adds a new turret: the drill turret.
 
 
 - automatically drill nearby ores and natural rocks.
-- mining mode can be switched (only ores, only rocks and both).
+- mining mode can be switched (only ores, only rocks, both, or only mining-designated targets, including Mine and MineVein).
 - manning the turret will improves its drilling speed (level 20 miner using drill turret mines 2x faster).
 - drill efficiency and yield resources can be improved via one additional research.
+- global mod settings can allow unmanned drilling, remove the range limit, ignore walls, and adjust damage and drilling/search intervals.
+- damage and interval settings can be adjusted with either sliders or numeric text fields.
 
 
 

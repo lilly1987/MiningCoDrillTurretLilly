@@ -77,7 +77,14 @@ public class DrillTurretMod : Mod
         var sliderRect = new Rect(rowRect.x, rowRect.y, sliderWidth, rowRect.height);
         var fieldRect = new Rect(sliderRect.xMax + 10f, rowRect.y, fieldWidth, rowRect.height);
 
-        value = Mathf.RoundToInt(Widgets.HorizontalSlider(sliderRect, value, min, max));
+        var previousValue = value;
+        var sliderValue = Mathf.RoundToInt(Widgets.HorizontalSlider(sliderRect, value, min, max));
+        if (sliderValue != previousValue)
+        {
+            value = sliderValue;
+            buffer = value.ToString();
+        }
+
         Widgets.TextFieldNumeric(fieldRect, ref value, ref buffer, min, max);
         value = Mathf.Clamp(value, min, max);
     }
