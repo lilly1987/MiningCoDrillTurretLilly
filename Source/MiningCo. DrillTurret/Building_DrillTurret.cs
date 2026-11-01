@@ -26,6 +26,8 @@ internal class Building_DrillTurret : Building
 
     private static List<ThingDef> mineableThingDefs;
 
+    private static DesignationDef mineVeinDesignation;
+
     public static Material TargetLineTexture =
         MaterialPool.MatFrom(GenDraw.LineTexPath, ShaderDatabase.Transparent, new Color(1f, 1f, 1f));
 
@@ -229,17 +231,18 @@ internal class Building_DrillTurret : Building
     private void lookForNewTarget(out IntVec3 newTargetPosition)
     {
         newTargetPosition = IntVec3.Invalid;
-        var candidates = DrillTurretMod.Settings.UnlimitedRange
-            ? getMineableCandidateCells()
-            : GenRadial.RadialCellsAround(Position, def.specialDisplayRadius, false).ToList();
+        var candidates = miningMode == MiningMode.DesignatedOnly || designatedOnly
+            ? getDesignatedMineableCandidateCells()
+            : DrillTurretMod.Settings.UnlimitedRange
+                ? getMineableCandidateCells()
+                : GenRadial.RadialCellsAround(Position, def.specialDisplayRadius, false).ToList();
         var randomizedCandidates = candidates.InRandomOrder().ToList();
 
         if (DrillTurretMod.Settings.PrioritizeDesignatedTargets)
         {
             foreach (var candidate in randomizedCandidates)
             {
-                if (Map.designationManager.DesignationAt(candidate, DesignationDefOf.Mine) != null &&
-                    isValidTargetAt(candidate))
+                if (isMiningDesignated(candidate) && isValidTargetAt(candidate))
                 {
                     newTargetPosition = candidate;
                     break;
@@ -251,8 +254,7 @@ internal class Building_DrillTurret : Building
         {
             foreach (var candidate in randomizedCandidates)
             {
-                if (DrillTurretMod.Settings.PrioritizeDesignatedTargets &&
-                    Map.designationManager.DesignationAt(candidate, DesignationDefOf.Mine) != null)
+                if (DrillTurretMod.Settings.PrioritizeDesignatedTargets && isMiningDesignated(candidate))
                 {
                     continue;
                 }
@@ -272,6 +274,27 @@ internal class Building_DrillTurret : Building
             turretTopRotation =
                 Mathf.Repeat((newTargetPosition.ToVector3Shifted() - this.TrueCenter()).AngleFlat(), 360f);
         }
+    }
+
+    private List<IntVec3> getDesignatedMineableCandidateCells()
+    {
+        return Map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Mine)
+            .Concat(Map.designationManager.SpawnedDesignationsOfDef(getMineVeinDesignation()))
+            .Select(designation => designation.target.Cell)
+            .Where(cell => cell.IsValid && cell.InBounds(Map))
+            .Distinct()
+            .ToList();
+    }
+
+    private static DesignationDef getMineVeinDesignation()
+    {
+        return mineVeinDesignation ??= DefDatabase<DesignationDef>.GetNamed("MineVein");
+    }
+
+    private bool isMiningDesignated(IntVec3 cell)
+    {
+        return Map.designationManager.DesignationAt(cell, DesignationDefOf.Mine) != null ||
+               Map.designationManager.DesignationAt(cell, getMineVeinDesignation()) != null;
     }
 
     private List<IntVec3> getMineableCandidateCells()
@@ -304,8 +327,7 @@ internal class Building_DrillTurret : Building
             return false;
         }
 
-        if ((designatedOnly || miningMode == MiningMode.DesignatedOnly) &&
-            Map.designationManager.DesignationAt(position, DesignationDefOf.Mine) == null)
+        if ((designatedOnly || miningMode == MiningMode.DesignatedOnly) && !isMiningDesignated(position))
         {
             return false;
         }
