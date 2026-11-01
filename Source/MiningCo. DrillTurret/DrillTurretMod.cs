@@ -40,36 +40,21 @@ public class DrillTurretMod : Mod
         if (Settings.UseFixedDrillDamage)
         {
             listing.Label("MCDT.FixedDrillDamage".Translate(Settings.FixedDrillDamage));
-            var fixedDamageSlider = (float)Settings.FixedDrillDamage;
-            fixedDamageSlider = listing.Slider(fixedDamageSlider, 1f, 1000f);
-            Settings.FixedDrillDamage = Mathf.RoundToInt(fixedDamageSlider);
-            listing.TextFieldNumeric(ref Settings.FixedDrillDamage, ref fixedDrillDamageBuffer, 80f);
-            Settings.FixedDrillDamage = Mathf.Clamp(Settings.FixedDrillDamage, 1, 1000);
+            sliderWithNumericField(listing, ref Settings.FixedDrillDamage, ref fixedDrillDamageBuffer, 1, 1000);
         }
         else
         {
             listing.Label("MCDT.DrillDamagePercent".Translate(Settings.DrillDamagePercent));
-            var damagePercentSlider = (float)Settings.DrillDamagePercent;
-            damagePercentSlider = listing.Slider(damagePercentSlider, 10f, 500f);
-            Settings.DrillDamagePercent = Mathf.RoundToInt(damagePercentSlider);
-            listing.TextFieldNumeric(ref Settings.DrillDamagePercent, ref drillDamagePercentBuffer, 80f);
-            Settings.DrillDamagePercent = Mathf.Clamp(Settings.DrillDamagePercent, 10, 500);
+            sliderWithNumericField(listing, ref Settings.DrillDamagePercent, ref drillDamagePercentBuffer, 10, 500);
         }
 
         listing.Gap();
         listing.Label("MCDT.DrillIntervalTicks".Translate(Settings.DrillIntervalTicks));
-        var drillIntervalSlider = (float)Settings.DrillIntervalTicks;
-        drillIntervalSlider = listing.Slider(drillIntervalSlider, 1f, 600f);
-        Settings.DrillIntervalTicks = Mathf.RoundToInt(drillIntervalSlider);
-        listing.TextFieldNumeric(ref Settings.DrillIntervalTicks, ref drillIntervalTicksBuffer, 80f);
-        Settings.DrillIntervalTicks = Mathf.Clamp(Settings.DrillIntervalTicks, 1, 600);
+        sliderWithNumericField(listing, ref Settings.DrillIntervalTicks, ref drillIntervalTicksBuffer, 1, 600);
 
         listing.Label("MCDT.TargetSearchIntervalTicks".Translate(Settings.TargetSearchIntervalTicks));
-        var searchIntervalSlider = (float)Settings.TargetSearchIntervalTicks;
-        searchIntervalSlider = listing.Slider(searchIntervalSlider, 1f, 600f);
-        Settings.TargetSearchIntervalTicks = Mathf.RoundToInt(searchIntervalSlider);
-        listing.TextFieldNumeric(ref Settings.TargetSearchIntervalTicks, ref targetSearchIntervalTicksBuffer, 80f);
-        Settings.TargetSearchIntervalTicks = Mathf.Clamp(Settings.TargetSearchIntervalTicks, 1, 600);
+        sliderWithNumericField(listing, ref Settings.TargetSearchIntervalTicks, ref targetSearchIntervalTicksBuffer, 1,
+            600);
 
         if (currentVersion != null)
         {
@@ -81,6 +66,20 @@ public class DrillTurretMod : Mod
 
         listing.End();
         base.DoSettingsWindowContents(inRect);
+    }
+
+    private static void sliderWithNumericField(Listing_Standard listing, ref int value, ref string buffer, int min,
+        int max)
+    {
+        var rowRect = listing.GetRect(30f);
+        var fieldWidth = Mathf.Min(90f, rowRect.width * 0.35f);
+        var sliderWidth = Mathf.Max(0f, rowRect.width - fieldWidth - 10f);
+        var sliderRect = new Rect(rowRect.x, rowRect.y, sliderWidth, rowRect.height);
+        var fieldRect = new Rect(sliderRect.xMax + 10f, rowRect.y, fieldWidth, rowRect.height);
+
+        value = Mathf.RoundToInt(Widgets.HorizontalSlider(sliderRect, value, min, max));
+        Widgets.TextFieldNumeric(fieldRect, ref value, ref buffer, min, max);
+        value = Mathf.Clamp(value, min, max);
     }
 
     public override string SettingsCategory()
