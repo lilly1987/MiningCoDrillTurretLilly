@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <ResearchDrillTurret.label>드릴 포탑</ResearchDrillTurret.label>
+  <ResearchDrillTurret.description>드릴 포탑을 설계합니다. 광맥이나 자연 암석 근처에 배치하면 자동으로 채굴합니다. 다만 자원의 일부(25%)가 손실됩니다.</ResearchDrillTurret.description>
+  <ResearchDrillTurretEfficientDrilling.label>효율적인 채굴</ResearchDrillTurretEfficientDrilling.label>
+  <ResearchDrillTurretEfficientDrilling.description>드릴 포탑의 효율을 25% 높이고 광석 자원 손실을 방지합니다.</ResearchDrillTurretEfficientDrilling.description>
+</LanguageData>

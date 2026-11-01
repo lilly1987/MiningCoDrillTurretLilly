@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <MCDT.CurrentModVersion>설치된 모드 버전: {0}</MCDT.CurrentModVersion>
+  <MCDT.DesignatedOnly>지정된 대상만 채굴</MCDT.DesignatedOnly>
+  <MCDT.DesignatedOnlyTT>채굴 표시가 지정된 타일만 채굴합니다.</MCDT.DesignatedOnlyTT>
+  <MCDT.SetTarget>대상 지정</MCDT.SetTarget>
+  <MCDT.SetTargetTT>포탑이 지정된 암석을 채굴하도록 명령합니다. 사거리와 시야가 허용되는 대상만 지정할 수 있습니다.</MCDT.SetTargetTT>
+  <MCDT.OresRocks>광석과 암석</MCDT.OresRocks>
+  <MCDT.OresRocksTT>주변의 광석과 암석을 자동으로 채굴합니다. 클릭하여 모드를 변경합니다.</MCDT.OresRocksTT>
+  <MCDT.RocksOnly>암석만</MCDT.RocksOnly>
+  <MCDT.RocksOnlyTT>주변의 암석만 채굴합니다. 클릭하여 모드를 변경합니다.</MCDT.RocksOnlyTT>
+  <MCDT.OresOnly>광석만</MCDT.OresOnly>
+  <MCDT.OresOnlyTT>주변의 광석만 채굴합니다. 클릭하여 모드를 변경합니다.</MCDT.OresOnlyTT>
+  <MCDT.IdleDrill>유휴 상태인 드릴 포탑</MCDT.IdleDrill>
+  <MCDT.IdleDrillTT>작동하지 않는 드릴 포탑이 있습니다. 위치를 옮기거나 채굴할 암석을 더 지정해 보세요.</MCDT.IdleDrillTT>
+  <MCDT.EnableIdlePowerDraw>유휴 시 전력 소비 감소</MCDT.EnableIdlePowerDraw>
+  <MCDT.EnableIdlePowerDrawTT>활성화하면 대상이 없을 때 25W만 소비하고, 채굴 중에는 최대 전력으로 증가합니다.</MCDT.EnableIdlePowerDrawTT>
+  <MCDT.AllowUnmannedDrilling>폰 없이 자동 채굴 허용</MCDT.AllowUnmannedDrilling>
+  <MCDT.AllowUnmannedDrillingTT>비활성화하면 폰이 포탑을 조작해야 채굴합니다. 조작 폰의 기존 속도 보너스는 유지됩니다.</MCDT.AllowUnmannedDrillingTT>
+  <MCDT.UnlimitedRange>사거리 제한 해제</MCDT.UnlimitedRange>
+  <MCDT.UnlimitedRangeTT>포탑 사거리 대신 현재 맵 전체에서 채굴 가능한 대상을 검색합니다.</MCDT.UnlimitedRangeTT>
+  <MCDT.IgnoreWalls>벽 무시</MCDT.IgnoreWalls>
+  <MCDT.IgnoreWallsTT>벽이나 다른 시야 방해물이 있어도 대상을 채굴합니다.</MCDT.IgnoreWallsTT>
+  <MCDT.PrioritizeDesignatedTargets>채굴 표시 대상 우선</MCDT.PrioritizeDesignatedTargets>
+  <MCDT.PrioritizeDesignatedTargetsTT>자동 대상 선택 시 채굴 표시된 대상을 다른 유효 대상보다 먼저 선택합니다.</MCDT.PrioritizeDesignatedTargetsTT>
+  <MCDT.UseFixedDrillDamage>고정 채굴 피해 사용</MCDT.UseFixedDrillDamage>
+  <MCDT.UseFixedDrillDamageTT>채굴 효율에 따라 피해량을 계산하는 대신 매 타격에 고정 피해량을 적용합니다.</MCDT.UseFixedDrillDamageTT>
+  <MCDT.DrillDamagePercent>채굴 피해 배율: {0}%</MCDT.DrillDamagePercent>
+  <MCDT.FixedDrillDamage>타격당 고정 피해: {0}</MCDT.FixedDrillDamage>
+  <MCDT.DrillIntervalTicks>채굴 간격: {0}틱</MCDT.DrillIntervalTicks>
+  <MCDT.TargetSearchIntervalTicks>대상 검색 간격: {0}틱</MCDT.TargetSearchIntervalTicks>
+  <MCDT.PowerModeLow>저전력</MCDT.PowerModeLow>
+  <MCDT.PowerModeLowTT>500W를 소비하며 채굴 속도가 절반이 됩니다. 클릭하여 모드를 변경합니다.</MCDT.PowerModeLowTT>
+  <MCDT.PowerModeMedium>중전력</MCDT.PowerModeMedium>
+  <MCDT.PowerModeMediumTT>1000W를 소비하며 기본 속도로 채굴합니다. 클릭하여 모드를 변경합니다.</MCDT.PowerModeMediumTT>
+  <MCDT.PowerModeHigh>고전력</MCDT.PowerModeHigh>
+  <MCDT.PowerModeHighTT>1500W를 소비하며 1.5배 빠르게 채굴합니다. 클릭하여 모드를 변경합니다.</MCDT.PowerModeHighTT>
+</LanguageData>

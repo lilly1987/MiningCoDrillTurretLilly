@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <DrillTurret.label>드릴 포탑</DrillTurret.label>
+  <DrillTurret.description>자동 채굴용 고급 포탑입니다. 자동 모드에서 주변 광석과 지정된 암석을 천천히 채굴합니다. 폰이 조작하면 채굴 효율이 크게 향상됩니다.</DrillTurret.description>
+</LanguageData>
