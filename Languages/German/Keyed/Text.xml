@@ -16,6 +16,20 @@
   <MCDT.CurrentModVersion>Installierte Mod-Version: {0}</MCDT.CurrentModVersion>
   <MCDT.EnableIdlePowerDraw>Stromverbrauch im Leerlauf reduzieren</MCDT.EnableIdlePowerDraw>
   <MCDT.EnableIdlePowerDrawTT>Wenn diese Option aktiviert ist, verbrauchen Bohrgeschütze im Leerlauf (kein Ziel in Reichweite) nur 25 W und erreichen bei aktivem Bohren ihre volle Leistung.</MCDT.EnableIdlePowerDrawTT>
+  <MCDT.AllowUnmannedDrilling>Bohrbetrieb ohne Bediener erlauben</MCDT.AllowUnmannedDrilling>
+  <MCDT.AllowUnmannedDrillingTT>Ist diese Option deaktiviert, muss ein Kolonist den Turm bedienen. Bediener behalten ihren bisherigen Geschwindigkeitsbonus.</MCDT.AllowUnmannedDrillingTT>
+  <MCDT.UnlimitedRange>Reichweitenbegrenzung aufheben</MCDT.UnlimitedRange>
+  <MCDT.UnlimitedRangeTT>Alle abbaubaren Ziele auf der aktuellen Karte statt nur Ziele in Reichweite suchen.</MCDT.UnlimitedRangeTT>
+  <MCDT.IgnoreWalls>Wände ignorieren</MCDT.IgnoreWalls>
+  <MCDT.IgnoreWallsTT>Ziele auch durch Wände und andere Sichtblocker hindurch abbauen.</MCDT.IgnoreWallsTT>
+  <MCDT.PrioritizeDesignatedTargets>Markierte Ziele bevorzugen</MCDT.PrioritizeDesignatedTargets>
+  <MCDT.PrioritizeDesignatedTargetsTT>Für den Abbau markierte Ziele vor anderen gültigen Zielen auswählen.</MCDT.PrioritizeDesignatedTargetsTT>
+  <MCDT.UseFixedDrillDamage>Festgelegten Schaden verwenden</MCDT.UseFixedDrillDamage>
+  <MCDT.UseFixedDrillDamageTT>Pro Bohrtreffer einen festen Schadenswert statt eines von der Bohreffizienz abhängigen Werts verwenden.</MCDT.UseFixedDrillDamageTT>
+  <MCDT.DrillDamagePercent>Schadensmultiplikator: {0} %</MCDT.DrillDamagePercent>
+  <MCDT.FixedDrillDamage>Fester Schaden pro Treffer: {0}</MCDT.FixedDrillDamage>
+  <MCDT.DrillIntervalTicks>Bohrintervall: {0} Ticks</MCDT.DrillIntervalTicks>
+  <MCDT.TargetSearchIntervalTicks>Zielsuchintervall: {0} Ticks</MCDT.TargetSearchIntervalTicks>
   <MCDT.PowerModeLow>Geringe Leistung</MCDT.PowerModeLow>
   <MCDT.PowerModeLowTT>Verbraucht 500 W und baut mit halber Geschwindigkeit ab. Zum Umschalten des Modus anklicken.</MCDT.PowerModeLowTT>
   <MCDT.PowerModeMedium>Mittlere Leistung</MCDT.PowerModeMedium>

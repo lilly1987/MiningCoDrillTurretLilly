@@ -24,6 +24,8 @@ internal class Building_DrillTurret : Building
     private static readonly Material laserBeamTexture =
         MaterialPool.MatFrom("Effects/DrillTurret_LaserBeam", ShaderDatabase.Transparent);
 
+    private static List<ThingDef> mineableThingDefs;
+
     public static Material TargetLineTexture =
         MaterialPool.MatFrom(GenDraw.LineTexPath, ShaderDatabase.Transparent, new Color(1f, 1f, 1f));
 
@@ -43,6 +45,10 @@ internal class Building_DrillTurret : Building
 
     private bool isManned;
 
+    private bool operatorPresent;
+
+    private float currentDrillEfficiency;
+
     private Matrix4x4 laserBeamMatrix;
 
     private Vector3 laserBeamScale = new(1f, 1f, 1f);
@@ -52,6 +58,8 @@ internal class Building_DrillTurret : Building
     private MiningMode miningMode = MiningMode.OresAndRocks;
 
     private int nextUpdateTick;
+
+    private int nextTargetSearchTick;
 
     private float operatorEfficiency;
 
@@ -99,6 +107,8 @@ internal class Building_DrillTurret : Building
         Scribe_Values.Look(ref turretTopRotation, "turretTopRotation");
         Scribe_Values.Look(ref designatedOnly, "designatedOnly");
         Scribe_Values.Look(ref powerMode, "PowerMode", PowerMode.High);
+        Scribe_Values.Look(ref NextDrillTick, "nextDrillTick");
+        Scribe_Values.Look(ref nextTargetSearchTick, "nextTargetSearchTick");
     }
 
     public void SetOperatorEfficiency(float efficiency)
@@ -171,18 +181,29 @@ internal class Building_DrillTurret : Building
                 resetTarget();
             }
 
-            if (!TargetPosition.IsValid)
-            {
-                lookForNewTarget(out TargetPosition);
-            }
+            var hasOperator = isManned;
+            currentDrillEfficiency = computeDrillEfficiency();
+            operatorPresent = hasOperator;
+            drillEfficiencyInPercent =
+                Mathf.RoundToInt(Mathf.Clamp(currentDrillEfficiency * 100f, 0f, 100f));
+        }
 
-            var num = computeDrillEfficiency();
-            drillEfficiencyInPercent = Mathf.RoundToInt(Mathf.Clamp(num * 100f, 0f, 100f));
-            drillDamageAmount = Mathf.CeilToInt(Mathf.Lerp(0f, 100f, num));
-            if (TargetPosition.IsValid)
-            {
-                drillRock();
-            }
+        var currentTick = Find.TickManager.TicksGame;
+        if (!TargetPosition.IsValid && currentTick >= nextTargetSearchTick)
+        {
+            lookForNewTarget(out TargetPosition);
+            nextTargetSearchTick = currentTick + DrillTurretMod.Settings.TargetSearchIntervalTicks;
+        }
+
+        var canDrill = DrillTurretMod.Settings.AllowUnmannedDrilling || operatorPresent;
+        if (TargetPosition.IsValid && canDrill && currentTick >= NextDrillTick)
+        {
+            drillDamageAmount = DrillTurretMod.Settings.UseFixedDrillDamage
+                ? DrillTurretMod.Settings.FixedDrillDamage
+                : Mathf.CeilToInt(Mathf.Lerp(0f, 100f, currentDrillEfficiency) *
+                                  DrillTurretMod.Settings.DrillDamagePercent / 100f);
+            drillRock();
+            NextDrillTick = currentTick + DrillTurretMod.Settings.DrillIntervalTicks;
         }
 
         var isValid3 = TargetPosition.IsValid;
@@ -197,31 +218,83 @@ internal class Building_DrillTurret : Building
     private void OnPoweredOff()
     {
         resetTarget();
+        NextDrillTick = 0;
     }
 
     private void lookForNewTarget(out IntVec3 newTargetPosition)
     {
         newTargetPosition = IntVec3.Invalid;
-        foreach (var intVec in GenRadial.RadialCellsAround(Position, def.specialDisplayRadius, false).InRandomOrder())
-        {
-            if (!isValidTargetAt(intVec))
-            {
-                continue;
-            }
+        var candidates = DrillTurretMod.Settings.UnlimitedRange
+            ? getMineableCandidateCells()
+            : GenRadial.RadialCellsAround(Position, def.specialDisplayRadius, false).ToList();
+        var randomizedCandidates = candidates.InRandomOrder().ToList();
 
-            newTargetPosition = intVec;
-            break;
+        if (DrillTurretMod.Settings.PrioritizeDesignatedTargets)
+        {
+            foreach (var candidate in randomizedCandidates)
+            {
+                if (Map.designationManager.DesignationAt(candidate, DesignationDefOf.Mine) != null &&
+                    isValidTargetAt(candidate))
+                {
+                    newTargetPosition = candidate;
+                    break;
+                }
+            }
+        }
+
+        if (!newTargetPosition.IsValid)
+        {
+            foreach (var candidate in randomizedCandidates)
+            {
+                if (DrillTurretMod.Settings.PrioritizeDesignatedTargets &&
+                    Map.designationManager.DesignationAt(candidate, DesignationDefOf.Mine) != null)
+                {
+                    continue;
+                }
+
+                if (!isValidTargetAt(candidate))
+                {
+                    continue;
+                }
+
+                newTargetPosition = candidate;
+                break;
+            }
         }
 
         if (newTargetPosition.IsValid)
         {
-            turretTopRotation = Mathf.Repeat((TargetPosition.ToVector3Shifted() - this.TrueCenter()).AngleFlat(), 360f);
+            turretTopRotation =
+                Mathf.Repeat((newTargetPosition.ToVector3Shifted() - this.TrueCenter()).AngleFlat(), 360f);
         }
+    }
+
+    private List<IntVec3> getMineableCandidateCells()
+    {
+        mineableThingDefs ??= DefDatabase<ThingDef>.AllDefsListForReading
+            .Where(thingDef => thingDef.mineable)
+            .ToList();
+
+        var candidateCells = new List<IntVec3>();
+        foreach (var thingDef in mineableThingDefs)
+        {
+            foreach (var thing in Map.listerThings.ThingsOfDef(thingDef))
+            {
+                candidateCells.Add(thing.Position);
+            }
+        }
+
+        return candidateCells.Distinct().ToList();
     }
 
     private bool isValidTargetAt(IntVec3 position)
     {
-        if (!GenSight.LineOfSight(Position, position, Map, false))
+        if (!DrillTurretMod.Settings.UnlimitedRange && !position.InHorDistOf(Position, def.specialDisplayRadius))
+        {
+            return false;
+        }
+
+        if (!DrillTurretMod.Settings.IgnoreWalls && !GenSight.LineOfSight(Position, position, Map, false))
         {
             return false;
         }
@@ -247,7 +320,12 @@ internal class Building_DrillTurret : Building
 
     private bool isValidTargetAtForGizmo(IntVec3 position)
     {
-        if (!GenSight.LineOfSight(Position, position, Map, false))
+        if (!DrillTurretMod.Settings.UnlimitedRange && !position.InHorDistOf(Position, def.specialDisplayRadius))
+        {
+            return false;
+        }
+
+        if (!DrillTurretMod.Settings.IgnoreWalls && !GenSight.LineOfSight(Position, position, Map, false))
         {
             return false;
         }
@@ -300,7 +378,6 @@ internal class Building_DrillTurret : Building
         }
 
         resetTarget();
-        lookForNewTarget(out TargetPosition);
     }
 
     private void stopLaserDrillEffecter()

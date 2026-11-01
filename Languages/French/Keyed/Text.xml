@@ -16,6 +16,20 @@
   <MCDT.CurrentModVersion>Version installée du mod : {0}</MCDT.CurrentModVersion>
   <MCDT.EnableIdlePowerDraw>Réduire la consommation d'énergie en veille</MCDT.EnableIdlePowerDraw>
   <MCDT.EnableIdlePowerDrawTT>Lorsqu'elles sont activées, les tourelles de forage ne consomment que 25 W en veille (aucune cible à portée), puis montent en puissance jusqu'à leur pleine puissance lorsqu'elles forent activement.</MCDT.EnableIdlePowerDrawTT>
+  <MCDT.AllowUnmannedDrilling>Autoriser le forage sans opérateur</MCDT.AllowUnmannedDrilling>
+  <MCDT.AllowUnmannedDrillingTT>Si cette option est désactivée, un colon doit utiliser la tourelle pour qu'elle puisse forer. Les opérateurs conservent leur bonus de vitesse.</MCDT.AllowUnmannedDrillingTT>
+  <MCDT.UnlimitedRange>Supprimer la limite de portée</MCDT.UnlimitedRange>
+  <MCDT.UnlimitedRangeTT>Rechercher toutes les cibles exploitables sur la carte actuelle, sans limiter la portée.</MCDT.UnlimitedRangeTT>
+  <MCDT.IgnoreWalls>Ignorer les murs</MCDT.IgnoreWalls>
+  <MCDT.IgnoreWallsTT>Permettre de forer les cibles à travers les murs et autres obstacles à la visibilité.</MCDT.IgnoreWallsTT>
+  <MCDT.PrioritizeDesignatedTargets>Prioriser les cibles désignées</MCDT.PrioritizeDesignatedTargets>
+  <MCDT.PrioritizeDesignatedTargetsTT>Sélectionner les cibles désignées pour l'exploitation minière avant les autres cibles valides.</MCDT.PrioritizeDesignatedTargetsTT>
+  <MCDT.UseFixedDrillDamage>Utiliser des dégâts fixes</MCDT.UseFixedDrillDamage>
+  <MCDT.UseFixedDrillDamageTT>Utiliser une valeur de dégâts fixe par coup au lieu de les calculer selon l'efficacité de forage.</MCDT.UseFixedDrillDamageTT>
+  <MCDT.DrillDamagePercent>Multiplicateur de dégâts : {0} %</MCDT.DrillDamagePercent>
+  <MCDT.FixedDrillDamage>Dégâts fixes par coup : {0}</MCDT.FixedDrillDamage>
+  <MCDT.DrillIntervalTicks>Intervalle de forage : {0} ticks</MCDT.DrillIntervalTicks>
+  <MCDT.TargetSearchIntervalTicks>Intervalle de recherche : {0} ticks</MCDT.TargetSearchIntervalTicks>
   <MCDT.PowerModeLow>Faible puissance</MCDT.PowerModeLow>
   <MCDT.PowerModeLowTT>Consomme 500 W et mine à moitié vitesse. Cliquez pour changer de mode.</MCDT.PowerModeLowTT>
   <MCDT.PowerModeMedium>Puissance moyenne</MCDT.PowerModeMedium>

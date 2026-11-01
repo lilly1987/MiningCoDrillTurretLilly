@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModSyncNinjaData>
   <ID>c3cef2a2-5827-47d8-9f44-9688123d1a8e</ID>
-  <ModName>MiningCo. DrillTurret (Continued)</ModName>
+  <ModName>MiningCo. DrillTurret (Continued) by lilly</ModName>
   <Version>1.7.0</Version>
   <SaveBreaking>False</SaveBreaking>
   <Host name="Github">
-    <Owner>emipa606</Owner>
-    <Project>MiningCoDrillTurret</Project>
+    <Owner>lilly1987</Owner>
+    <Project>MiningCoDrillTurretLilly</Project>
     <AboutDir>About</AboutDir>
     <DownloadFrom>ModSyncMainPage</DownloadFrom>
     <Branch>master</Branch>

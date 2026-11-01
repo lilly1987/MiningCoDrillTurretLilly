@@ -15,6 +15,20 @@
   <MCDT.IdleDrillTT>You have an idle drill turret. You should maybe move it or designate more rocks to drill.</MCDT.IdleDrillTT>
   <MCDT.EnableIdlePowerDraw>Reduce power draw while idle</MCDT.EnableIdlePowerDraw>
   <MCDT.EnableIdlePowerDrawTT>When enabled, drill turrets only draw 25W while idle (no target in range), ramping up to full power while actively drilling.</MCDT.EnableIdlePowerDrawTT>
+  <MCDT.AllowUnmannedDrilling>Allow unmanned drilling</MCDT.AllowUnmannedDrilling>
+  <MCDT.AllowUnmannedDrillingTT>When disabled, a pawn must operate the turret for it to drill. Operators retain their existing speed bonus.</MCDT.AllowUnmannedDrillingTT>
+  <MCDT.UnlimitedRange>Remove range limit</MCDT.UnlimitedRange>
+  <MCDT.UnlimitedRangeTT>Search all mineable targets on the current map instead of limiting targets to the turret's range.</MCDT.UnlimitedRangeTT>
+  <MCDT.IgnoreWalls>Ignore walls</MCDT.IgnoreWalls>
+  <MCDT.IgnoreWallsTT>Allow drilling targets through walls and other line-of-sight blockers.</MCDT.IgnoreWallsTT>
+  <MCDT.PrioritizeDesignatedTargets>Prioritize designated targets</MCDT.PrioritizeDesignatedTargets>
+  <MCDT.PrioritizeDesignatedTargetsTT>Automatically select targets marked for mining before other valid targets.</MCDT.PrioritizeDesignatedTargetsTT>
+  <MCDT.UseFixedDrillDamage>Use fixed damage</MCDT.UseFixedDrillDamage>
+  <MCDT.UseFixedDrillDamageTT>Use a fixed damage value per drilling hit instead of scaling damage with drilling efficiency.</MCDT.UseFixedDrillDamageTT>
+  <MCDT.DrillDamagePercent>Damage multiplier: {0}%</MCDT.DrillDamagePercent>
+  <MCDT.FixedDrillDamage>Fixed damage per hit: {0}</MCDT.FixedDrillDamage>
+  <MCDT.DrillIntervalTicks>Drilling interval: {0} ticks</MCDT.DrillIntervalTicks>
+  <MCDT.TargetSearchIntervalTicks>Target search interval: {0} ticks</MCDT.TargetSearchIntervalTicks>
   <MCDT.PowerModeLow>Low power</MCDT.PowerModeLow>
   <MCDT.PowerModeLowTT>Draws 500W and mines at half speed. Click to switch mode.</MCDT.PowerModeLowTT>
   <MCDT.PowerModeMedium>Medium power</MCDT.PowerModeMedium>

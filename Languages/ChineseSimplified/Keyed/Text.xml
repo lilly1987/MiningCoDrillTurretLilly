@@ -16,6 +16,20 @@
   <MCDT.CurrentModVersion>已安装 MOD 版本：{0}</MCDT.CurrentModVersion>
   <MCDT.EnableIdlePowerDraw>闲置时降低功耗</MCDT.EnableIdlePowerDraw>
   <MCDT.EnableIdlePowerDrawTT>启用后，钻探炮塔在空闲状态（范围内无目标）时仅消耗 25W 电力，在积极钻探时会逐渐提升至满功率。</MCDT.EnableIdlePowerDrawTT>
+  <MCDT.AllowUnmannedDrilling>允许无人采矿</MCDT.AllowUnmannedDrilling>
+  <MCDT.AllowUnmannedDrillingTT>禁用后，必须有殖民者操作炮塔才能采矿。操作员仍保留原有的速度加成。</MCDT.AllowUnmannedDrillingTT>
+  <MCDT.UnlimitedRange>移除射程限制</MCDT.UnlimitedRange>
+  <MCDT.UnlimitedRangeTT>搜索当前地图上的所有可采矿目标，不再限制炮塔射程。</MCDT.UnlimitedRangeTT>
+  <MCDT.IgnoreWalls>无视墙壁</MCDT.IgnoreWalls>
+  <MCDT.IgnoreWallsTT>允许隔着墙壁和其他视线阻挡物开采目标。</MCDT.IgnoreWallsTT>
+  <MCDT.PrioritizeDesignatedTargets>优先开采已标记目标</MCDT.PrioritizeDesignatedTargets>
+  <MCDT.PrioritizeDesignatedTargetsTT>自动选择目标时，优先选择已标记采矿的目标。</MCDT.PrioritizeDesignatedTargetsTT>
+  <MCDT.UseFixedDrillDamage>使用固定伤害</MCDT.UseFixedDrillDamage>
+  <MCDT.UseFixedDrillDamageTT>每次钻击使用固定伤害值，而不是根据采矿效率缩放伤害。</MCDT.UseFixedDrillDamageTT>
+  <MCDT.DrillDamagePercent>伤害倍率：{0}%</MCDT.DrillDamagePercent>
+  <MCDT.FixedDrillDamage>每次钻击固定伤害：{0}</MCDT.FixedDrillDamage>
+  <MCDT.DrillIntervalTicks>采矿间隔：{0} tick</MCDT.DrillIntervalTicks>
+  <MCDT.TargetSearchIntervalTicks>目标搜索间隔：{0} tick</MCDT.TargetSearchIntervalTicks>
   <MCDT.PowerModeLow>低功率</MCDT.PowerModeLow>
   <MCDT.PowerModeLowTT>功耗500W，开采速度减半。点击切换模式。</MCDT.PowerModeLowTT>
   <MCDT.PowerModeMedium>中等功率</MCDT.PowerModeMedium>
