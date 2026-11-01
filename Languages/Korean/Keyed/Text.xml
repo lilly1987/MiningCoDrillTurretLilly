@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <MCDT.CurrentModVersion>설치된 모드 버전: {0}</MCDT.CurrentModVersion>
-  <MCDT.DesignatedOnly>지정된 대상만 채굴</MCDT.DesignatedOnly>
-  <MCDT.DesignatedOnlyTT>채굴 표시가 지정된 타일만 채굴합니다.</MCDT.DesignatedOnlyTT>
+  <MCDT.DesignatedOnly>채굴 표시 대상만</MCDT.DesignatedOnly>
+  <MCDT.DesignatedOnlyTT>채굴 표시된 대상만 자동으로 채굴합니다. 클릭하여 모드를 변경합니다.</MCDT.DesignatedOnlyTT>
   <MCDT.SetTarget>대상 지정</MCDT.SetTarget>
   <MCDT.SetTargetTT>포탑이 지정된 암석을 채굴하도록 명령합니다. 사거리와 시야가 허용되는 대상만 지정할 수 있습니다.</MCDT.SetTargetTT>
   <MCDT.OresRocks>광석과 암석</MCDT.OresRocks>

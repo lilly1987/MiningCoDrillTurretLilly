@@ -109,6 +109,11 @@ internal class Building_DrillTurret : Building
         Scribe_Values.Look(ref powerMode, "PowerMode", PowerMode.High);
         Scribe_Values.Look(ref NextDrillTick, "nextDrillTick");
         Scribe_Values.Look(ref nextTargetSearchTick, "nextTargetSearchTick");
+        if (Scribe.mode == LoadSaveMode.PostLoadInit && designatedOnly)
+        {
+            miningMode = MiningMode.DesignatedOnly;
+            designatedOnly = false;
+        }
     }
 
     public void SetOperatorEfficiency(float efficiency)
@@ -299,7 +304,8 @@ internal class Building_DrillTurret : Building
             return false;
         }
 
-        if (designatedOnly && Map.designationManager.DesignationAt(position, DesignationDefOf.Mine) == null)
+        if ((designatedOnly || miningMode == MiningMode.DesignatedOnly) &&
+            Map.designationManager.DesignationAt(position, DesignationDefOf.Mine) == null)
         {
             return false;
         }
@@ -312,10 +318,10 @@ internal class Building_DrillTurret : Building
 
         if (edifice.def.building.isResourceRock)
         {
-            return miningMode is MiningMode.Ores or MiningMode.OresAndRocks;
+            return miningMode is MiningMode.Ores or MiningMode.OresAndRocks or MiningMode.DesignatedOnly;
         }
 
-        return miningMode is MiningMode.Rocks or MiningMode.OresAndRocks;
+        return miningMode is MiningMode.Rocks or MiningMode.OresAndRocks or MiningMode.DesignatedOnly;
     }
 
     private bool isValidTargetAtForGizmo(IntVec3 position)
@@ -435,6 +441,11 @@ internal class Building_DrillTurret : Building
                 commandAction.defaultDesc = "MCDT.OresRocksTT".Translate();
                 commandAction.icon = ContentFinder<Texture2D>.Get("Ui/Commands/CommandButton_SwitchMode_Both");
                 break;
+            case MiningMode.DesignatedOnly:
+                commandAction.defaultLabel = "MCDT.DesignatedOnly".Translate();
+                commandAction.defaultDesc = "MCDT.DesignatedOnlyTT".Translate();
+                commandAction.icon = ContentFinder<Texture2D>.Get("UI/Designators/Mine");
+                break;
         }
 
         commandAction.activateSound = SoundDef.Named("Click");
@@ -476,19 +487,6 @@ internal class Building_DrillTurret : Building
             action = selectTarget,
             groupKey = num + 6
         });
-        list.Add(new Command_Toggle
-        {
-            icon = ContentFinder<Texture2D>.Get("UI/Designators/Mine"),
-            defaultLabel = "MCDT.DesignatedOnly".Translate(),
-            defaultDesc = "MCDT.DesignatedOnlyTT".Translate(),
-            activateSound = SoundDef.Named("Click"),
-            isActive = () => designatedOnly,
-            toggleAction = () =>
-            {
-                designatedOnly = !designatedOnly;
-                lookForNewTarget(out TargetPosition);
-            }
-        });
         var gizmos = base.GetGizmos();
         var result = gizmos != null ? gizmos.Concat(list) : list;
 
@@ -506,6 +504,9 @@ internal class Building_DrillTurret : Building
                 miningMode = MiningMode.OresAndRocks;
                 break;
             case MiningMode.OresAndRocks:
+                miningMode = MiningMode.DesignatedOnly;
+                break;
+            case MiningMode.DesignatedOnly:
                 miningMode = MiningMode.Ores;
                 break;
         }
@@ -600,7 +601,8 @@ internal class Building_DrillTurret : Building
     {
         Ores,
         Rocks,
-        OresAndRocks
+        OresAndRocks,
+        DesignatedOnly
     }
 
     private enum PowerMode

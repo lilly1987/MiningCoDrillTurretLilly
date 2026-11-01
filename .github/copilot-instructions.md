@@ -7,6 +7,7 @@ MiningCo. DrillTurret is a mod for the game RimWorld that adds a new turret call
   * Autonomous operation: Unmanned drilling can be enabled while retaining the existing operator speed bonus.
   * Configurable drilling: Global settings control range, wall obstruction, damage, drilling interval, and target search interval.
   * Designation priority: Marked mining targets can be prioritized during automatic target selection.
+  * Designated-only mode: The mining mode cycle can be set to mine only targets marked for mining.
   * Mining mode: The mining mode can be switched between only ores, only rocks, and both.
   * Manning: Manning the turret will improve its drilling speed, with level 20 miners using the drill turret mining 2x faster.
   * Drill efficiency and yield: Drill efficiency and yield can be improved via one additional research.
